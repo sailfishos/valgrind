@@ -332,6 +332,9 @@ struct vki_stat {
 	long		st_blksize;
 	long		st_blocks;	/* Number 512-byte blocks allocated. */
 
+#undef st_atime
+#undef st_mtime
+#undef st_ctime
 	unsigned long	st_atime;
 	unsigned long 	st_atime_nsec; 
 	unsigned long	st_mtime;

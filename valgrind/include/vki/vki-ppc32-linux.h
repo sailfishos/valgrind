@@ -418,6 +418,9 @@ struct vki_stat {
    long			st_size;
    unsigned long	st_blksize;
    unsigned long	st_blocks;
+#undef st_atime
+#undef st_mtime
+#undef st_ctime
    unsigned long	st_atime;
    unsigned long	st_atime_nsec;
    unsigned long	st_mtime;
