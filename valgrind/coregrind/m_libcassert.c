@@ -119,7 +119,8 @@
 #  define GET_STARTREGS(srP)                              \
       { UInt block[6];                                    \
         __asm__ __volatile__(                             \
-           "str r15, [%0, #+0];"                          \
+           "add r6, pc, #0;"                              \
+           "str r6, [%0, #+0];"                           \
            "str r14, [%0, #+4];"                          \
            "str r13, [%0, #+8];"                          \
            "str r12, [%0, #+12];"                         \
@@ -127,7 +128,7 @@
            "str r7,  [%0, #+20];"                         \
            : /* out */                                    \
            : /* in */ "r"(&block[0])                      \
-           : /* trash */ "memory"                         \
+           : /* trash */ "memory","r6"                    \
         );                                                \
         (srP)->r_pc = block[0] - 8;                       \
         (srP)->r_sp = block[1];                           \
