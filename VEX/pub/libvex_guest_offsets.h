@@ -66,6 +66,17 @@
 #define OFFSET_arm_R13 60
 #define OFFSET_arm_R14 64
 #define OFFSET_arm_R15T 68
+#define OFFSET_arm64_X0 16
+#define OFFSET_arm64_X1 24
+#define OFFSET_arm64_X2 32
+#define OFFSET_arm64_X3 40
+#define OFFSET_arm64_X4 48
+#define OFFSET_arm64_X5 56
+#define OFFSET_arm64_X6 64
+#define OFFSET_arm64_X7 72
+#define OFFSET_arm64_X8 80
+#define OFFSET_arm64_XSP 264
+#define OFFSET_arm64_PC 272
 #define OFFSET_s390x_r2 208
 #define OFFSET_s390x_r3 216
 #define OFFSET_s390x_r4 224

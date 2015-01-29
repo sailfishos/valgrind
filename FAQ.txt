@@ -1,8 +1,8 @@
 
 
 Valgrind FAQ
-Release 3.8.0 10 August 2012
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Release 3.10.0 10 September 2014
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Table of Contents
 1. Background
@@ -17,9 +17,9 @@ Table of Contents
 ------------------------------------------------------------------------
 
 1.1. How do you pronounce "Valgrind"? 
-The "Val" as in the world "value". The "grind" is pronounced with a 
-short 'i' -- ie. "grinned" (rhymes with "tinned") rather than "grined" 
-(rhymes with "find"). 
+The "Val" as in the word "value". The "grind" is pronounced with a short 
+'i' -- ie. "grinned" (rhymes with "tinned") rather than "grined" (rhymes 
+with "find"). 
 
 Don't feel bad: almost everyone gets it wrong at first. 
 ------------------------------------------------------------------------
