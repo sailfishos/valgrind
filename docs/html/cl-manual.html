@@ -1091,11 +1091,12 @@ their arguments.</p>
       counted. This is useful to skip uninteresting program parts, as there
       is much less slowdown (same as with the Valgrind tool "none"). See also
       the Callgrind option <code class="option">--instr-atstart</code>.</p></dd>
-<dt><span class="term"><code class="option">-w=&lt;dir&gt;</code></span></dt>
-<dd><p>Specify the startup directory of an active Callgrind run. On some
-      systems, active Callgrind runs can not be detected. To be able to
-      control these, the failed auto-detection can be worked around by
-      specifying the directory where a Callgrind run was started.</p></dd>
+<dt><span class="term"><code class="option">--vgdb-prefix=&lt;prefix&gt;</code></span></dt>
+<dd><p>Specify the vgdb prefix to use by callgrind_control.
+      callgrind_control internally uses vgdb to find and control the active
+      Callgrind runs. If the <code class="option">--vgdb-prefix</code> option was used
+      for launching valgrind, then the same option must be given to
+      callgrind_control.</p></dd>
 </dl>
 </div>
 </div>

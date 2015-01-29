@@ -86,16 +86,17 @@ DIST_COMMON = $(dist_noinst_SCRIPTS) $(noinst_HEADERS) \
 @VGCONF_ARCHS_INCLUDE_PPC32_TRUE@am__append_8 = ppc32
 @VGCONF_ARCHS_INCLUDE_PPC64_TRUE@am__append_9 = ppc64
 @VGCONF_ARCHS_INCLUDE_ARM_TRUE@am__append_10 = arm
-@VGCONF_ARCHS_INCLUDE_S390X_TRUE@am__append_11 = s390x
-@VGCONF_ARCHS_INCLUDE_MIPS32_TRUE@am__append_12 = mips32
-@VGCONF_ARCHS_INCLUDE_MIPS64_TRUE@am__append_13 = mips64
+@VGCONF_ARCHS_INCLUDE_ARM64_TRUE@am__append_11 = arm64
+@VGCONF_ARCHS_INCLUDE_S390X_TRUE@am__append_12 = s390x
+@VGCONF_ARCHS_INCLUDE_MIPS32_TRUE@am__append_13 = mips32
+@VGCONF_ARCHS_INCLUDE_MIPS64_TRUE@am__append_14 = mips64
 
 # OS-specific tests
-@VGCONF_OS_IS_LINUX_TRUE@am__append_14 = linux
-@VGCONF_OS_IS_DARWIN_TRUE@am__append_15 = darwin
+@VGCONF_OS_IS_LINUX_TRUE@am__append_15 = linux
+@VGCONF_OS_IS_DARWIN_TRUE@am__append_16 = darwin
 
 # Platform-specific tests
-@VGCONF_PLATFORMS_INCLUDE_X86_LINUX_TRUE@am__append_16 = x86-linux
+@VGCONF_PLATFORMS_INCLUDE_X86_LINUX_TRUE@am__append_17 = x86-linux
 check_PROGRAMS = ansi$(EXEEXT) args$(EXEEXT) async-sigs$(EXEEXT) \
 	bitfield1$(EXEEXT) bug129866$(EXEEXT) closeall$(EXEEXT) \
 	coolo_strlen$(EXEEXT) discard$(EXEEXT) exec-sigmask$(EXEEXT) \
@@ -104,9 +105,9 @@ check_PROGRAMS = ansi$(EXEEXT) args$(EXEEXT) async-sigs$(EXEEXT) \
 	fdleak_dup2$(EXEEXT) fdleak_fcntl$(EXEEXT) \
 	fdleak_ipv4$(EXEEXT) fdleak_open$(EXEEXT) fdleak_pipe$(EXEEXT) \
 	fdleak_socketpair$(EXEEXT) floored$(EXEEXT) fork$(EXEEXT) \
-	fucomip$(EXEEXT) mmap_fcntl_bug$(EXEEXT) munmap_exe$(EXEEXT) \
-	map_unaligned$(EXEEXT) map_unmap$(EXEEXT) mq$(EXEEXT) \
-	pending$(EXEEXT) procfs-cmdline-exe$(EXEEXT) \
+	fucomip$(EXEEXT) ioctl_moans$(EXEEXT) mmap_fcntl_bug$(EXEEXT) \
+	munmap_exe$(EXEEXT) map_unaligned$(EXEEXT) map_unmap$(EXEEXT) \
+	mq$(EXEEXT) pending$(EXEEXT) procfs-cmdline-exe$(EXEEXT) \
 	pth_atfork1$(EXEEXT) pth_blockedsig$(EXEEXT) \
 	pth_cancel1$(EXEEXT) pth_cancel2$(EXEEXT) \
 	pth_cvsimple$(EXEEXT) pth_empty$(EXEEXT) pth_exit$(EXEEXT) \
@@ -124,7 +125,7 @@ check_PROGRAMS = ansi$(EXEEXT) args$(EXEEXT) async-sigs$(EXEEXT) \
 	vgprintf$(EXEEXT) coolo_sigaction$(EXEEXT) gxx304$(EXEEXT) \
 	process_vm_readv_writev$(EXEEXT) $(am__EXEEXT_1) \
 	$(am__EXEEXT_2) $(am__EXEEXT_3) $(am__EXEEXT_4)
-@HAVE_NESTED_FUNCTIONS_TRUE@am__append_17 = nestedfns
+@HAVE_NESTED_FUNCTIONS_TRUE@am__append_18 = nestedfns
 
 # DDD:
 # - manythreads and thread-exits have lots of this:
@@ -136,13 +137,13 @@ check_PROGRAMS = ansi$(EXEEXT) args$(EXEEXT) async-sigs$(EXEEXT) \
 # --61831:0:aspacem  NSegment{    , start=0x10067a000, end=0x109a1efff,
 #                    smode=SmFixed, dev=0, ino=0, offset=0, fnIdx=-1, hasR=0,
 #                    hasW=0, hasX=0, hasT=0, mark=0, name="(none)"}
-@VGCONF_PLATFORMS_INCLUDE_AMD64_DARWIN_FALSE@am__append_18 = \
+@VGCONF_PLATFORMS_INCLUDE_AMD64_DARWIN_FALSE@am__append_19 = \
 @VGCONF_PLATFORMS_INCLUDE_AMD64_DARWIN_FALSE@	manythreads \
 @VGCONF_PLATFORMS_INCLUDE_AMD64_DARWIN_FALSE@	thread-exits
 
 # This doesn't appear to be compilable on Darwin.
-@VGCONF_OS_IS_DARWIN_FALSE@am__append_19 = rlimit64_nofile 
-@BUILD_IFUNC_TESTS_TRUE@am__append_20 = ifunc
+@VGCONF_OS_IS_DARWIN_FALSE@am__append_20 = rlimit64_nofile 
+@BUILD_IFUNC_TESTS_TRUE@am__append_21 = ifunc
 subdir = none/tests
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/configure.ac
@@ -242,6 +243,9 @@ gxx304_LDADD = $(LDADD)
 ifunc_SOURCES = ifunc.c
 ifunc_OBJECTS = ifunc.$(OBJEXT)
 ifunc_LDADD = $(LDADD)
+ioctl_moans_SOURCES = ioctl_moans.c
+ioctl_moans_OBJECTS = ioctl_moans.$(OBJEXT)
+ioctl_moans_LDADD = $(LDADD)
 manythreads_SOURCES = manythreads.c
 manythreads_OBJECTS = manythreads.$(OBJEXT)
 manythreads_DEPENDENCIES =
@@ -420,38 +424,40 @@ SOURCES = ansi.c args.c async-sigs.c bitfield1.c bug129866.c \
 	fdleak_cmsg.c fdleak_creat.c fdleak_dup.c fdleak_dup2.c \
 	fdleak_fcntl.c fdleak_ipv4.c fdleak_open.c fdleak_pipe.c \
 	fdleak_socketpair.c floored.c fork.c fucomip.c \
-	$(gxx304_SOURCES) ifunc.c manythreads.c map_unaligned.c \
-	map_unmap.c mmap_fcntl_bug.c mq.c munmap_exe.c nestedfns.c \
-	pending.c process_vm_readv_writev.c procfs-cmdline-exe.c \
-	pth_atfork1.c pth_blockedsig.c pth_cancel1.c pth_cancel2.c \
-	pth_cvsimple.c pth_empty.c pth_exit.c pth_exit2.c \
-	pth_mutexspeed.c pth_once.c pth_rwlock.c pth_stackalign.c \
-	rcrl.c readline1.c require-text-symbol.c res_search.c resolv.c \
-	rlimit64_nofile.c rlimit_nofile.c selfrun.c sem.c semlimit.c \
-	sha1_test.c shortpush.c shorts.c sigstackgrowth.c \
-	stackgrowth.c syscall-restart1.c syscall-restart2.c syslog.c \
-	system.c thread-exits.c threaded-fork.c threadederrno.c \
-	timestamp.c $(tls_SOURCES) $(tls_so_SOURCES) \
-	$(tls2_so_SOURCES) $(valgrind_cpp_test_SOURCES) vgprintf.c
+	$(gxx304_SOURCES) ifunc.c ioctl_moans.c manythreads.c \
+	map_unaligned.c map_unmap.c mmap_fcntl_bug.c mq.c munmap_exe.c \
+	nestedfns.c pending.c process_vm_readv_writev.c \
+	procfs-cmdline-exe.c pth_atfork1.c pth_blockedsig.c \
+	pth_cancel1.c pth_cancel2.c pth_cvsimple.c pth_empty.c \
+	pth_exit.c pth_exit2.c pth_mutexspeed.c pth_once.c \
+	pth_rwlock.c pth_stackalign.c rcrl.c readline1.c \
+	require-text-symbol.c res_search.c resolv.c rlimit64_nofile.c \
+	rlimit_nofile.c selfrun.c sem.c semlimit.c sha1_test.c \
+	shortpush.c shorts.c sigstackgrowth.c stackgrowth.c \
+	syscall-restart1.c syscall-restart2.c syslog.c system.c \
+	thread-exits.c threaded-fork.c threadederrno.c timestamp.c \
+	$(tls_SOURCES) $(tls_so_SOURCES) $(tls2_so_SOURCES) \
+	$(valgrind_cpp_test_SOURCES) vgprintf.c
 DIST_SOURCES = ansi.c args.c async-sigs.c bitfield1.c bug129866.c \
 	closeall.c $(coolo_sigaction_SOURCES) coolo_strlen.c discard.c \
 	exec-sigmask.c execve.c faultstatus.c fcntl_setown.c \
 	fdleak_cmsg.c fdleak_creat.c fdleak_dup.c fdleak_dup2.c \
 	fdleak_fcntl.c fdleak_ipv4.c fdleak_open.c fdleak_pipe.c \
 	fdleak_socketpair.c floored.c fork.c fucomip.c \
-	$(gxx304_SOURCES) ifunc.c manythreads.c map_unaligned.c \
-	map_unmap.c mmap_fcntl_bug.c mq.c munmap_exe.c nestedfns.c \
-	pending.c process_vm_readv_writev.c procfs-cmdline-exe.c \
-	pth_atfork1.c pth_blockedsig.c pth_cancel1.c pth_cancel2.c \
-	pth_cvsimple.c pth_empty.c pth_exit.c pth_exit2.c \
-	pth_mutexspeed.c pth_once.c pth_rwlock.c pth_stackalign.c \
-	rcrl.c readline1.c require-text-symbol.c res_search.c resolv.c \
-	rlimit64_nofile.c rlimit_nofile.c selfrun.c sem.c semlimit.c \
-	sha1_test.c shortpush.c shorts.c sigstackgrowth.c \
-	stackgrowth.c syscall-restart1.c syscall-restart2.c syslog.c \
-	system.c thread-exits.c threaded-fork.c threadederrno.c \
-	timestamp.c $(tls_SOURCES) $(tls_so_SOURCES) \
-	$(tls2_so_SOURCES) $(valgrind_cpp_test_SOURCES) vgprintf.c
+	$(gxx304_SOURCES) ifunc.c ioctl_moans.c manythreads.c \
+	map_unaligned.c map_unmap.c mmap_fcntl_bug.c mq.c munmap_exe.c \
+	nestedfns.c pending.c process_vm_readv_writev.c \
+	procfs-cmdline-exe.c pth_atfork1.c pth_blockedsig.c \
+	pth_cancel1.c pth_cancel2.c pth_cvsimple.c pth_empty.c \
+	pth_exit.c pth_exit2.c pth_mutexspeed.c pth_once.c \
+	pth_rwlock.c pth_stackalign.c rcrl.c readline1.c \
+	require-text-symbol.c res_search.c resolv.c rlimit64_nofile.c \
+	rlimit_nofile.c selfrun.c sem.c semlimit.c sha1_test.c \
+	shortpush.c shorts.c sigstackgrowth.c stackgrowth.c \
+	syscall-restart1.c syscall-restart2.c syslog.c system.c \
+	thread-exits.c threaded-fork.c threadederrno.c timestamp.c \
+	$(tls_SOURCES) $(tls_so_SOURCES) $(tls2_so_SOURCES) \
+	$(valgrind_cpp_test_SOURCES) vgprintf.c
 RECURSIVE_TARGETS = all-recursive check-recursive dvi-recursive \
 	html-recursive info-recursive install-data-recursive \
 	install-dvi-recursive install-exec-recursive \
@@ -532,9 +538,13 @@ EXEEXT = @EXEEXT@
 FLAG_FNO_STACK_PROTECTOR = @FLAG_FNO_STACK_PROTECTOR@
 FLAG_M32 = @FLAG_M32@
 FLAG_M64 = @FLAG_M64@
+FLAG_MIPS32 = @FLAG_MIPS32@
+FLAG_MIPS64 = @FLAG_MIPS64@
 FLAG_MMMX = @FLAG_MMMX@
 FLAG_MSSE = @FLAG_MSSE@
 FLAG_NO_BUILD_ID = @FLAG_NO_BUILD_ID@
+FLAG_OCTEON = @FLAG_OCTEON@
+FLAG_OCTEON2 = @FLAG_OCTEON2@
 FLAG_T_TEXT = @FLAG_T_TEXT@
 FLAG_UNLIMITED_INLINE_UNIT_GROWTH = @FLAG_UNLIMITED_INLINE_UNIT_GROWTH@
 FLAG_W_EXTRA = @FLAG_W_EXTRA@
@@ -542,7 +552,10 @@ FLAG_W_NO_EMPTY_BODY = @FLAG_W_NO_EMPTY_BODY@
 FLAG_W_NO_FORMAT_ZERO_LENGTH = @FLAG_W_NO_FORMAT_ZERO_LENGTH@
 FLAG_W_NO_NONNULL = @FLAG_W_NO_NONNULL@
 FLAG_W_NO_OVERFLOW = @FLAG_W_NO_OVERFLOW@
+FLAG_W_NO_STATIC_LOCAL_IN_INLINE = @FLAG_W_NO_STATIC_LOCAL_IN_INLINE@
+FLAG_W_NO_TAUTOLOGICAL_COMPARE = @FLAG_W_NO_TAUTOLOGICAL_COMPARE@
 FLAG_W_NO_UNINITIALIZED = @FLAG_W_NO_UNINITIALIZED@
+FLAG_W_NO_UNUSED_FUNCTION = @FLAG_W_NO_UNUSED_FUNCTION@
 GDB = @GDB@
 GLIBC_VERSION = @GLIBC_VERSION@
 GREP = @GREP@
@@ -571,7 +584,7 @@ PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PERL = @PERL@
-PREFERRED_STACK_BOUNDARY = @PREFERRED_STACK_BOUNDARY@
+PREFERRED_STACK_BOUNDARY_2 = @PREFERRED_STACK_BOUNDARY_2@
 RANLIB = @RANLIB@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
@@ -586,6 +599,7 @@ VGCONF_OS = @VGCONF_OS@
 VGCONF_PLATFORM_PRI_CAPS = @VGCONF_PLATFORM_PRI_CAPS@
 VGCONF_PLATFORM_SEC_CAPS = @VGCONF_PLATFORM_SEC_CAPS@
 VGCONF_PLATVARIANT = @VGCONF_PLATVARIANT@
+VG_TMPDIR = @VG_TMPDIR@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
@@ -656,20 +670,24 @@ AM_CFLAGS_BASE = \
 	-Wstrict-prototypes \
 	-Wmissing-declarations \
 	@FLAG_W_NO_FORMAT_ZERO_LENGTH@ \
+	@FLAG_W_NO_TAUTOLOGICAL_COMPARE@ \
 	-fno-strict-aliasing \
 	-fno-builtin
 
-@VGCONF_OS_IS_DARWIN_FALSE@AM_CFLAGS_PIC = -fpic -O -g -fno-omit-frame-pointer -fno-strict-aliasing \
-@VGCONF_OS_IS_DARWIN_FALSE@		-fno-builtin
+@VGCONF_OS_IS_DARWIN_FALSE@AM_CFLAGS_PSO_BASE = -O -g -fno-omit-frame-pointer -fno-strict-aliasing \
+@VGCONF_OS_IS_DARWIN_FALSE@		     -fpic -fno-builtin
 
 
-# These flags are used for building the preload shared objects.
+# These flags are used for building the preload shared objects (PSOs).
 # The aim is to give reasonable performance but also to have good
 # stack traces, since users often see stack traces extending 
-# into (and through) the preloads.
-@VGCONF_OS_IS_DARWIN_TRUE@AM_CFLAGS_PIC = -dynamic -O -g -fno-omit-frame-pointer -fno-strict-aliasing \
-@VGCONF_OS_IS_DARWIN_TRUE@		-mno-dynamic-no-pic -fpic -fPIC \
-@VGCONF_OS_IS_DARWIN_TRUE@		-fno-builtin
+# into (and through) the preloads.  Also, we must use any
+# -mpreferred-stack-boundary flag to build the preload shared
+# objects, since that risks misaligning the client's stack and
+# results in segfaults like (eg) #324050.
+@VGCONF_OS_IS_DARWIN_TRUE@AM_CFLAGS_PSO_BASE = -dynamic \
+@VGCONF_OS_IS_DARWIN_TRUE@		     -O -g -fno-omit-frame-pointer -fno-strict-aliasing \
+@VGCONF_OS_IS_DARWIN_TRUE@		     -fpic -fPIC -fno-builtin
 
 
 # Flags for specific targets.
@@ -680,6 +698,7 @@ AM_CPPFLAGS_@VGCONF_PLATFORM_PRI_CAPS@ = \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/VEX/pub \
+	-I$(top_builddir)/VEX/pub \
 	-DVGA_@VGCONF_ARCH_PRI@=1 \
 	-DVGO_@VGCONF_OS@=1 \
 	-DVGP_@VGCONF_ARCH_PRI@_@VGCONF_OS@=1 \
@@ -689,54 +708,79 @@ AM_CPPFLAGS_@VGCONF_PLATFORM_PRI_CAPS@ = \
 @VGCONF_HAVE_PLATFORM_SEC_TRUE@	-I$(top_srcdir) \
 @VGCONF_HAVE_PLATFORM_SEC_TRUE@	-I$(top_srcdir)/include \
 @VGCONF_HAVE_PLATFORM_SEC_TRUE@	-I$(top_srcdir)/VEX/pub \
+@VGCONF_HAVE_PLATFORM_SEC_TRUE@	-I$(top_builddir)/VEX/pub \
 @VGCONF_HAVE_PLATFORM_SEC_TRUE@	-DVGA_@VGCONF_ARCH_SEC@=1 \
 @VGCONF_HAVE_PLATFORM_SEC_TRUE@	-DVGO_@VGCONF_OS@=1 \
 @VGCONF_HAVE_PLATFORM_SEC_TRUE@	-DVGP_@VGCONF_ARCH_SEC@_@VGCONF_OS@=1 \
 @VGCONF_HAVE_PLATFORM_SEC_TRUE@	-DVGPV_@VGCONF_ARCH_SEC@_@VGCONF_OS@_@VGCONF_PLATVARIANT@=1
 
 AM_FLAG_M3264_X86_LINUX = @FLAG_M32@
-AM_CFLAGS_X86_LINUX = @FLAG_M32@  @PREFERRED_STACK_BOUNDARY@ \
+AM_CFLAGS_X86_LINUX = @FLAG_M32@ @PREFERRED_STACK_BOUNDARY_2@ \
 				$(AM_CFLAGS_BASE) -fomit-frame-pointer
 
+AM_CFLAGS_PSO_X86_LINUX = @FLAG_M32@ $(AM_CFLAGS_BASE) $(AM_CFLAGS_PSO_BASE)
 AM_CCASFLAGS_X86_LINUX = @FLAG_M32@ -g
 AM_FLAG_M3264_AMD64_LINUX = @FLAG_M64@
-AM_CFLAGS_AMD64_LINUX = @FLAG_M64@ @PREFERRED_STACK_BOUNDARY@ \
+AM_CFLAGS_AMD64_LINUX = @FLAG_M64@ \
 				$(AM_CFLAGS_BASE) -fomit-frame-pointer
 
+AM_CFLAGS_PSO_AMD64_LINUX = @FLAG_M64@ $(AM_CFLAGS_BASE) $(AM_CFLAGS_PSO_BASE)
 AM_CCASFLAGS_AMD64_LINUX = @FLAG_M64@ -g
 AM_FLAG_M3264_PPC32_LINUX = @FLAG_M32@
 AM_CFLAGS_PPC32_LINUX = @FLAG_M32@ $(AM_CFLAGS_BASE)
+AM_CFLAGS_PSO_PPC32_LINUX = @FLAG_M32@ $(AM_CFLAGS_BASE) $(AM_CFLAGS_PSO_BASE)
 AM_CCASFLAGS_PPC32_LINUX = @FLAG_M32@ -g
-AM_FLAG_M3264_PPC64_LINUX = @FLAG_M64@
-AM_CFLAGS_PPC64_LINUX = @FLAG_M64@ $(AM_CFLAGS_BASE)
-AM_CCASFLAGS_PPC64_LINUX = @FLAG_M64@ -g
+AM_FLAG_M3264_PPC64BE_LINUX = @FLAG_M64@
+AM_CFLAGS_PPC64BE_LINUX = @FLAG_M64@ $(AM_CFLAGS_BASE)
+AM_CFLAGS_PSO_PPC64BE_LINUX = @FLAG_M64@ $(AM_CFLAGS_BASE) $(AM_CFLAGS_PSO_BASE)
+AM_CCASFLAGS_PPC64BE_LINUX = @FLAG_M64@ -g
+AM_FLAG_M3264_PPC64LE_LINUX = @FLAG_M64@
+AM_CFLAGS_PPC64LE_LINUX = @FLAG_M64@ $(AM_CFLAGS_BASE)
+AM_CFLAGS_PSO_PPC64LE_LINUX = @FLAG_M64@ $(AM_CFLAGS_BASE) $(AM_CFLAGS_PSO_BASE)
+AM_CCASFLAGS_PPC64LE_LINUX = @FLAG_M64@ -g
 AM_FLAG_M3264_ARM_LINUX = @FLAG_M32@
-AM_CFLAGS_ARM_LINUX = @FLAG_M32@ @PREFERRED_STACK_BOUNDARY@ \
+AM_CFLAGS_ARM_LINUX = @FLAG_M32@ \
 			 	$(AM_CFLAGS_BASE) -marm -mcpu=cortex-a8
+
+AM_CFLAGS_PSO_ARM_LINUX = @FLAG_M32@ $(AM_CFLAGS_BASE) \
+				-marm -mcpu=cortex-a8 $(AM_CFLAGS_PSO_BASE)
 
 AM_CCASFLAGS_ARM_LINUX = @FLAG_M32@ \
 				-marm -mcpu=cortex-a8 -g
 
+AM_FLAG_M3264_ARM64_LINUX = @FLAG_M64@
+AM_CFLAGS_ARM64_LINUX = @FLAG_M64@ $(AM_CFLAGS_BASE)
+AM_CFLAGS_PSO_ARM64_LINUX = @FLAG_M64@ $(AM_CFLAGS_BASE) $(AM_CFLAGS_PSO_BASE)
+AM_CCASFLAGS_ARM64_LINUX = @FLAG_M64@ -g
 AM_FLAG_M3264_X86_DARWIN = -arch i386
 AM_CFLAGS_X86_DARWIN = $(WERROR) -arch i386 $(AM_CFLAGS_BASE) \
 				-mmacosx-version-min=10.5 \
 				-fno-stack-protector -fno-pic -fno-PIC
 
+AM_CFLAGS_PSO_X86_DARWIN = $(AM_CFLAGS_X86_DARWIN) $(AM_CFLAGS_PSO_BASE)
 AM_CCASFLAGS_X86_DARWIN = -arch i386 -g
 AM_FLAG_M3264_AMD64_DARWIN = -arch x86_64
 AM_CFLAGS_AMD64_DARWIN = $(WERROR) -arch x86_64 $(AM_CFLAGS_BASE) \
 			    -mmacosx-version-min=10.5 -fno-stack-protector
 
+AM_CFLAGS_PSO_AMD64_DARWIN = $(AM_CFLAGS_AMD64_DARWIN) $(AM_CFLAGS_PSO_BASE)
 AM_CCASFLAGS_AMD64_DARWIN = -arch x86_64 -g
 AM_FLAG_M3264_S390X_LINUX = @FLAG_M64@
 AM_CFLAGS_S390X_LINUX = @FLAG_M64@ $(AM_CFLAGS_BASE) -fomit-frame-pointer
+AM_CFLAGS_PSO_S390X_LINUX = @FLAG_M64@ $(AM_CFLAGS_BASE) $(AM_CFLAGS_PSO_BASE)
 AM_CCASFLAGS_S390X_LINUX = @FLAG_M64@ -g -mzarch -march=z900
 AM_FLAG_M3264_MIPS32_LINUX = @FLAG_M32@
-AM_CFLAGS_MIPS32_LINUX = @FLAG_M32@ $(AM_CFLAGS_BASE) -mips32
-AM_CCASFLAGS_MIPS32_LINUX = @FLAG_M32@ -mips32 -g
+AM_CFLAGS_MIPS32_LINUX = @FLAG_M32@ $(AM_CFLAGS_BASE) @FLAG_MIPS32@
+AM_CFLAGS_PSO_MIPS32_LINUX = @FLAG_M32@ $(AM_CFLAGS_BASE) @FLAG_MIPS32@ \
+				$(AM_CFLAGS_PSO_BASE)
+
+AM_CCASFLAGS_MIPS32_LINUX = @FLAG_M32@ -g @FLAG_MIPS32@
 AM_FLAG_M3264_MIPS64_LINUX = @FLAG_M64@
-AM_CFLAGS_MIPS64_LINUX = @FLAG_M64@ $(AM_CFLAGS_BASE) -mips64
-AM_CCASFLAGS_MIPS64_LINUX = @FLAG_M64@ -mips64 -g
+AM_CFLAGS_MIPS64_LINUX = @FLAG_M64@ $(AM_CFLAGS_BASE) @FLAG_MIPS64@
+AM_CFLAGS_PSO_MIPS64_LINUX = @FLAG_M64@ $(AM_CFLAGS_BASE) @FLAG_MIPS64@ \
+				$(AM_CFLAGS_PSO_BASE)
+
+AM_CCASFLAGS_MIPS64_LINUX = @FLAG_M64@ -g @FLAG_MIPS64@
 
 # Flags for the primary target.  These must be used to build the
 # regtests and performance tests.  In fact, these must be used to
@@ -757,8 +801,10 @@ PRELOAD_LDFLAGS_COMMON_DARWIN = -dynamic -dynamiclib -all_load
 PRELOAD_LDFLAGS_X86_LINUX = $(PRELOAD_LDFLAGS_COMMON_LINUX) @FLAG_M32@
 PRELOAD_LDFLAGS_AMD64_LINUX = $(PRELOAD_LDFLAGS_COMMON_LINUX) @FLAG_M64@
 PRELOAD_LDFLAGS_PPC32_LINUX = $(PRELOAD_LDFLAGS_COMMON_LINUX) @FLAG_M32@
-PRELOAD_LDFLAGS_PPC64_LINUX = $(PRELOAD_LDFLAGS_COMMON_LINUX) @FLAG_M64@
+PRELOAD_LDFLAGS_PPC64BE_LINUX = $(PRELOAD_LDFLAGS_COMMON_LINUX) @FLAG_M64@
+PRELOAD_LDFLAGS_PPC64LE_LINUX = $(PRELOAD_LDFLAGS_COMMON_LINUX) @FLAG_M64@
 PRELOAD_LDFLAGS_ARM_LINUX = $(PRELOAD_LDFLAGS_COMMON_LINUX) @FLAG_M32@
+PRELOAD_LDFLAGS_ARM64_LINUX = $(PRELOAD_LDFLAGS_COMMON_LINUX) @FLAG_M64@
 PRELOAD_LDFLAGS_X86_DARWIN = $(PRELOAD_LDFLAGS_COMMON_DARWIN) -arch i386
 PRELOAD_LDFLAGS_AMD64_DARWIN = $(PRELOAD_LDFLAGS_COMMON_DARWIN) -arch x86_64
 PRELOAD_LDFLAGS_S390X_LINUX = $(PRELOAD_LDFLAGS_COMMON_LINUX) @FLAG_M64@
@@ -766,8 +812,9 @@ PRELOAD_LDFLAGS_MIPS32_LINUX = $(PRELOAD_LDFLAGS_COMMON_LINUX) @FLAG_M32@
 PRELOAD_LDFLAGS_MIPS64_LINUX = $(PRELOAD_LDFLAGS_COMMON_LINUX) @FLAG_M64@
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/include \
 	-I$(top_srcdir)/coregrind -I$(top_builddir)/include \
-	-I$(top_srcdir)/VEX/pub -DVGA_@VGCONF_ARCH_PRI@=1 \
-	-DVGO_@VGCONF_OS@=1 -DVGP_@VGCONF_ARCH_PRI@_@VGCONF_OS@=1 \
+	-I$(top_srcdir)/VEX/pub -I$(top_builddir)/VEX/pub \
+	-DVGA_@VGCONF_ARCH_PRI@=1 -DVGO_@VGCONF_OS@=1 \
+	-DVGP_@VGCONF_ARCH_PRI@_@VGCONF_OS@=1 \
 	-DVGPV_@VGCONF_ARCH_PRI@_@VGCONF_OS@_@VGCONF_PLATVARIANT@=1 \
 	$(am__append_2)
 
@@ -782,14 +829,15 @@ AM_CCASFLAGS = $(AM_CPPFLAGS)
 SUBDIRS = . $(am__append_6) $(am__append_7) $(am__append_8) \
 	$(am__append_9) $(am__append_10) $(am__append_11) \
 	$(am__append_12) $(am__append_13) $(am__append_14) \
-	$(am__append_15) $(am__append_16)
-DIST_SUBDIRS = x86 amd64 ppc32 ppc64 arm s390x mips32 mips64 linux darwin \
-               x86-linux .
+	$(am__append_15) $(am__append_16) $(am__append_17)
+DIST_SUBDIRS = x86 amd64 ppc32 ppc64 arm arm64 s390x mips32 mips64 \
+               linux darwin x86-linux .
 
 dist_noinst_SCRIPTS = \
 	filter_cmdline0 \
 	filter_cmdline1 \
 	filter_fdleak \
+	filter_ioctl_moans \
 	filter_linenos \
 	filter_none_discards \
 	filter_shell_output \
@@ -840,6 +888,7 @@ EXTRA_DIST = \
 	fucomip.stderr.exp fucomip.vgtest \
 	gxx304.stderr.exp gxx304.vgtest \
 	ifunc.stderr.exp ifunc.stdout.exp ifunc.vgtest \
+	ioctl_moans.stderr.exp ioctl_moans.vgtest \
 	manythreads.stdout.exp manythreads.stderr.exp manythreads.vgtest \
 	map_unaligned.stderr.exp map_unaligned.vgtest \
 	map_unmap.stderr.exp map_unmap.stdout.exp map_unmap.vgtest \
@@ -943,11 +992,11 @@ threaded_fork_LDADD = -lpthread
 threadederrno_LDADD = -lpthread
 tls_SOURCES = tls.c tls2.c
 tls_DEPENDENCIES = tls.so tls2.so
-tls_LDFLAGS = -Wl,-rpath,$(top_builddir)/none/tests
+tls_LDFLAGS = -Wl,-rpath,$(abs_top_builddir)/none/tests
 tls_LDADD = tls.so tls2.so -lpthread
 tls_so_SOURCES = tls_so.c
 tls_so_DEPENDENCIES = tls2.so
-@VGCONF_OS_IS_DARWIN_FALSE@tls_so_LDFLAGS = -Wl,-rpath,$(top_builddir)/none/tests -shared -fPIC
+@VGCONF_OS_IS_DARWIN_FALSE@tls_so_LDFLAGS = -Wl,-rpath,$(abs_top_builddir)/none/tests -shared -fPIC
 @VGCONF_OS_IS_DARWIN_TRUE@tls_so_LDFLAGS = -dynamic -dynamiclib -all_load -fpic
 @VGCONF_OS_IS_DARWIN_FALSE@tls_so_LDADD = tls2.so
 @VGCONF_OS_IS_DARWIN_TRUE@tls_so_LDADD = `pwd`/tls2.so
@@ -1080,6 +1129,9 @@ gxx304$(EXEEXT): $(gxx304_OBJECTS) $(gxx304_DEPENDENCIES) $(EXTRA_gxx304_DEPENDE
 ifunc$(EXEEXT): $(ifunc_OBJECTS) $(ifunc_DEPENDENCIES) $(EXTRA_ifunc_DEPENDENCIES) 
 	@rm -f ifunc$(EXEEXT)
 	$(LINK) $(ifunc_OBJECTS) $(ifunc_LDADD) $(LIBS)
+ioctl_moans$(EXEEXT): $(ioctl_moans_OBJECTS) $(ioctl_moans_DEPENDENCIES) $(EXTRA_ioctl_moans_DEPENDENCIES) 
+	@rm -f ioctl_moans$(EXEEXT)
+	$(LINK) $(ioctl_moans_OBJECTS) $(ioctl_moans_LDADD) $(LIBS)
 manythreads$(EXEEXT): $(manythreads_OBJECTS) $(manythreads_DEPENDENCIES) $(EXTRA_manythreads_DEPENDENCIES) 
 	@rm -f manythreads$(EXEEXT)
 	$(LINK) $(manythreads_OBJECTS) $(manythreads_LDADD) $(LIBS)
@@ -1264,6 +1316,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/fucomip.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/gxx304.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ifunc.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ioctl_moans.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/manythreads.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/map_unaligned.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/map_unmap.Po@am__quote@
@@ -1781,6 +1834,14 @@ install-noinst_PROGRAMS: $(noinst_PROGRAMS)
 	  $(INSTALL_PROGRAM) $$f $(DESTDIR)$(pkglibdir); \
 	done
 
+# This is used by coregrind/Makefile.am and by <tool>/Makefile.am for doing
+# "make uninstall".  It removes $(noinst_PROGRAMS) from $prefix/lib/valgrind/.
+# It needs to be depended on by an 'uninstall-local' rule.
+uninstall-noinst_PROGRAMS:
+	for f in $(noinst_PROGRAMS); do \
+	  rm -f $(DESTDIR)$(pkglibdir)/$$f; \
+	done
+
 # Similar to install-noinst_PROGRAMS.
 # Nb: we don't use $(INSTALL_PROGRAM) here because it doesn't work with
 # directories.  XXX: not sure whether the resulting permissions will be
@@ -1789,6 +1850,12 @@ install-noinst_DSYMS: build-noinst_DSYMS
 	$(mkinstalldirs) $(DESTDIR)$(pkglibdir); \
 	for f in $(noinst_DSYMS); do \
 	  cp -R $$f.dSYM $(DESTDIR)$(pkglibdir); \
+	done
+
+# Similar to uninstall-noinst_PROGRAMS.
+uninstall-noinst_DSYMS:
+	for f in $(noinst_DSYMS); do \
+	  rm -f $(DESTDIR)$(pkglibdir)/$$f.dSYM; \
 	done
 
 # This needs to be depended on by a 'clean-local' rule.

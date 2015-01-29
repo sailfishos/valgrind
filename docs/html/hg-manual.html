@@ -34,8 +34,9 @@
 </dl></dd>
 <dt><span class="sect1"><a href="hg-manual.html#hg-manual.effective-use">7.5. Hints and Tips for Effective Use of Helgrind</a></span></dt>
 <dt><span class="sect1"><a href="hg-manual.html#hg-manual.options">7.6. Helgrind Command-line Options</a></span></dt>
-<dt><span class="sect1"><a href="hg-manual.html#hg-manual.client-requests">7.7. Helgrind Client Requests</a></span></dt>
-<dt><span class="sect1"><a href="hg-manual.html#hg-manual.todolist">7.8. A To-Do List for Helgrind</a></span></dt>
+<dt><span class="sect1"><a href="hg-manual.html#hg-manual.monitor-commands">7.7. Helgrind Monitor Commands</a></span></dt>
+<dt><span class="sect1"><a href="hg-manual.html#hg-manual.client-requests">7.8. Helgrind Client Requests</a></span></dt>
+<dt><span class="sect1"><a href="hg-manual.html#hg-manual.todolist">7.9. A To-Do List for Helgrind</a></span></dt>
 </dl>
 </div>
 <p>To use this tool, you must specify
@@ -89,7 +90,7 @@ hints and tips on how to get the best out of Helgrind.</a>
 options.</a>
 </p>
 <p>Finally, there is 
-<a class="link" href="hg-manual.html#hg-manual.todolist" title="7.8. A To-Do List for Helgrind">a brief summary of areas in which Helgrind
+<a class="link" href="hg-manual.html#hg-manual.todolist" title="7.9. A To-Do List for Helgrind">a brief summary of areas in which Helgrind
 could be improved.</a>
 </p>
 </div>
@@ -856,6 +857,13 @@ unlock(mx)                             unlock(mx)
     in turn means we only support glibc's NPTL threading
     implementation.  The old LinuxThreads implementation is not
     supported.</p></li>
+<li class="listitem"><p>If your application is using thread local variables,
+    helgrind might report false positive race conditions on these
+    variables, despite being very probably race free.  On Linux, you can
+    use <code class="option">--sim-hints=deactivate-pthread-stack-cache-via-hack</code>
+    to avoid such false positive error messages
+    (see <a class="xref" href="manual-core.html#opt.sim-hints">--sim-hints</a>).
+    </p></li>
 <li class="listitem">
 <p>Round up all finished threads using
     <code class="function">pthread_join</code>.  Avoid
@@ -1039,7 +1047,51 @@ unlock(mx)                             unlock(mx)
 </div>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="hg-manual.client-requests"></a>7.7. Helgrind Client Requests</h2></div></div></div>
+<a name="hg-manual.monitor-commands"></a>7.7. Helgrind Monitor Commands</h2></div></div></div>
+<p>The Helgrind tool provides monitor commands handled by Valgrind's
+built-in gdbserver (see <a class="xref" href="manual-core-adv.html#manual-core-adv.gdbserver-commandhandling" title="3.2.5. Monitor command handling by the Valgrind gdbserver">Monitor command handling by the Valgrind gdbserver</a>).
+</p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
+<p><code class="varname">info locks</code> shows the list of locks and their
+    status. </p>
+<p>
+    In the following example, helgrind knows about one lock.
+    This lock is located at the guest address <code class="varname">ga 0x8049a20</code>.
+    The lock kind is <code class="varname">rdwr</code> indicating a reader-writer lock.
+    Other possible lock kinds are <code class="varname">nonRec</code> (simple mutex, non recursive)
+    and <code class="varname">mbRec</code> (simple mutex, possibly recursive).
+    The lock kind is then followed by the list of threads helding the lock.
+    In the below example, <code class="varname">R1:thread #6 tid 3</code> indicates that the
+    helgrind thread #6 has acquired (once, as the counter following the letter R is one)
+    the lock in read mode. The helgrind thread nr is incremented for each started thread.
+    The presence of 'tid 3' indicates that the thread #6 is has not exited yet and is the
+    valgrind tid 3. If a thread has terminated, then this is indicated with 'tid (exited)'.
+    </p>
+<pre class="programlisting">
+(gdb) monitor info locks
+Lock ga 0x8049a20 {
+   kind   rdwr
+ { R1:thread #6 tid 3 }
+}
+(gdb) 
+</pre>
+<p> If you give the option <code class="varname">--read-var-info=yes</code>, then more
+    information will be provided about the lock location, such as the global variable
+    or the heap block that contains the lock:
+    </p>
+<pre class="programlisting">
+Lock ga 0x8049a20 {
+ Location 0x8049a20 is 0 bytes inside global var "s_rwlock"
+ declared at rwlock_race.c:17
+   kind   rdwr
+ { R1:thread #3 tid 3 }
+}
+</pre>
+</li></ul></div>
+</div>
+<div class="sect1">
+<div class="titlepage"><div><div><h2 class="title" style="clear: both">
+<a name="hg-manual.client-requests"></a>7.8. Helgrind Client Requests</h2></div></div></div>
 <p>The following client requests are defined in
 <code class="filename">helgrind.h</code>.  See that file for exact details of their
 arguments.</p>
@@ -1068,7 +1120,7 @@ arguments.</p>
 </div>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">
-<a name="hg-manual.todolist"></a>7.8. A To-Do List for Helgrind</h2></div></div></div>
+<a name="hg-manual.todolist"></a>7.9. A To-Do List for Helgrind</h2></div></div></div>
 <p>The following is a list of loose ends which should be tidied up
 some time.</p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">

@@ -16,6 +16,9 @@
 /* DARWIN_VERS value for Mac OS X 10.8 */
 /* #undef DARWIN_10_8 */
 
+/* DARWIN_VERS value for Mac OS X 10.9 */
+/* #undef DARWIN_10_9 */
+
 /* Define to 1 if you're using Darwin */
 /* #undef DARWIN_LIBC */
 
@@ -58,8 +61,14 @@
 /* Define to 1 if you're using glibc 2.18.x */
 /* #undef GLIBC_2_18 */
 
+/* Define to 1 if you're using glibc 2.19.x */
+/* #undef GLIBC_2_19 */
+
 /* Define to 1 if you're using glibc 2.2.x */
 /* #undef GLIBC_2_2 */
+
+/* Define to 1 if you're using glibc 2.20.x */
+/* #undef GLIBC_2_20 */
 
 /* Define to 1 if you're using glibc 2.3.x */
 /* #undef GLIBC_2_3 */
@@ -107,6 +116,9 @@
 
 /* Define to 1 if you have the `CLOCK_MONOTONIC' constant. */
 #define HAVE_CLOCK_MONOTONIC 1
+
+/* Define to 1 if you have a dlinfo that can do RTLD_DI_TLS_MODID. */
+#define HAVE_DLINFO_RTLD_DI_TLS_MODID 1
 
 /* Define to 1 if you have the <endian.h> header file. */
 #define HAVE_ENDIAN_H 1
@@ -304,6 +316,9 @@
 /* Define to 1 if you have the <sys/types.h> header file. */
 #define HAVE_SYS_TYPES_H 1
 
+/* Define to 1 if <sys/user.h> defines struct user_regs_struct */
+#define HAVE_SYS_USER_REGS 1
+
 /* can use __thread to define thread-local variables */
 #define HAVE_TLS 1
 
@@ -338,7 +353,7 @@
 #define PACKAGE_NAME "Valgrind"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "Valgrind 3.9.0"
+#define PACKAGE_STRING "Valgrind 3.10.1"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "valgrind"
@@ -347,7 +362,7 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "3.9.0"
+#define PACKAGE_VERSION "3.10.1"
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
@@ -356,7 +371,7 @@
 #define TIME_WITH_SYS_TIME 1
 
 /* Version number of package */
-#define VERSION "3.9.0"
+#define VERSION "3.10.1"
 
 /* Temporary files directory */
 #define VG_TMPDIR "/tmp"

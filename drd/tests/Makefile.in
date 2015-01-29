@@ -85,14 +85,15 @@ check_PROGRAMS = annotate_hb_err$(EXEEXT) annotate_hb_race$(EXEEXT) \
 	annotate_trace_memory$(EXEEXT) bug-235681$(EXEEXT) \
 	custom_alloc$(EXEEXT) concurrent_close$(EXEEXT) \
 	fp_race$(EXEEXT) free_is_write$(EXEEXT) hold_lock$(EXEEXT) \
-	linuxthreads_det$(EXEEXT) memory_allocation$(EXEEXT) \
-	monitor_example$(EXEEXT) new_delete$(EXEEXT) \
-	pth_broadcast$(EXEEXT) pth_cancel_locked$(EXEEXT) \
-	pth_cleanup_handler$(EXEEXT) pth_cond_destroy_busy$(EXEEXT) \
-	pth_cond_race$(EXEEXT) pth_create_chain$(EXEEXT) \
-	pth_detached$(EXEEXT) pth_detached_sem$(EXEEXT) \
-	pth_detached3$(EXEEXT) pth_inconsistent_cond_wait$(EXEEXT) \
-	pth_mutex_reinit$(EXEEXT) pth_process_shared_mutex$(EXEEXT) \
+	linuxthreads_det$(EXEEXT) local_static$(EXEEXT) \
+	memory_allocation$(EXEEXT) monitor_example$(EXEEXT) \
+	new_delete$(EXEEXT) pth_broadcast$(EXEEXT) \
+	pth_cancel_locked$(EXEEXT) pth_cleanup_handler$(EXEEXT) \
+	pth_cond_destroy_busy$(EXEEXT) pth_cond_race$(EXEEXT) \
+	pth_create_chain$(EXEEXT) pth_detached$(EXEEXT) \
+	pth_detached_sem$(EXEEXT) pth_detached3$(EXEEXT) \
+	pth_inconsistent_cond_wait$(EXEEXT) pth_mutex_reinit$(EXEEXT) \
+	pth_process_shared_mutex$(EXEEXT) \
 	pth_uninitialized_cond$(EXEEXT) recursive_mutex$(EXEEXT) \
 	rwlock_race$(EXEEXT) rwlock_test$(EXEEXT) \
 	rwlock_type_checking$(EXEEXT) sem_as_mutex$(EXEEXT) \
@@ -106,6 +107,7 @@ check_PROGRAMS = annotate_hb_err$(EXEEXT) annotate_hb_race$(EXEEXT) \
 @HAVE_BUILTIN_ATOMIC_TRUE@am__append_7 = \
 @HAVE_BUILTIN_ATOMIC_TRUE@  annotate_barrier       \
 @HAVE_BUILTIN_ATOMIC_TRUE@  annotate_rwlock        \
+@HAVE_BUILTIN_ATOMIC_TRUE@  annotate_sem           \
 @HAVE_BUILTIN_ATOMIC_TRUE@  atomic_var             \
 @HAVE_BUILTIN_ATOMIC_TRUE@  circular_buffer
 
@@ -117,7 +119,11 @@ check_PROGRAMS = annotate_hb_err$(EXEEXT) annotate_hb_race$(EXEEXT) \
 # clang 3.3 will generate errors about libstdc++ headers from 
 # gcc (Ubuntu/Linaro 4.6.3-1ubuntu5) 4.6.3
 @CXX_CAN_INCLUDE_THREAD_HEADER_TRUE@@HAVE_SHARED_POINTER_ANNOTATION_TRUE@am__append_9 = \
-@CXX_CAN_INCLUDE_THREAD_HEADER_TRUE@@HAVE_SHARED_POINTER_ANNOTATION_TRUE@  std_thread
+@CXX_CAN_INCLUDE_THREAD_HEADER_TRUE@@HAVE_SHARED_POINTER_ANNOTATION_TRUE@  std_atomic      \
+@CXX_CAN_INCLUDE_THREAD_HEADER_TRUE@@HAVE_SHARED_POINTER_ANNOTATION_TRUE@  std_list        \
+@CXX_CAN_INCLUDE_THREAD_HEADER_TRUE@@HAVE_SHARED_POINTER_ANNOTATION_TRUE@  std_string      \
+@CXX_CAN_INCLUDE_THREAD_HEADER_TRUE@@HAVE_SHARED_POINTER_ANNOTATION_TRUE@  std_thread      \
+@CXX_CAN_INCLUDE_THREAD_HEADER_TRUE@@HAVE_SHARED_POINTER_ANNOTATION_TRUE@  std_thread2
 
 @HAVE_OPENMP_TRUE@am__append_10 = omp_matinv omp_prime omp_printf
 @HAVE_PTHREAD_BARRIER_TRUE@am__append_11 = matinv pth_barrier pth_barrier_race pth_barrier_reinit \
@@ -138,12 +144,17 @@ CONFIG_CLEAN_VPATH_FILES =
 @HAVE_BOOST_1_35_TRUE@am__EXEEXT_1 = boost_thread$(EXEEXT)
 @HAVE_BUILTIN_ATOMIC_TRUE@am__EXEEXT_2 = annotate_barrier$(EXEEXT) \
 @HAVE_BUILTIN_ATOMIC_TRUE@	annotate_rwlock$(EXEEXT) \
+@HAVE_BUILTIN_ATOMIC_TRUE@	annotate_sem$(EXEEXT) \
 @HAVE_BUILTIN_ATOMIC_TRUE@	atomic_var$(EXEEXT) \
 @HAVE_BUILTIN_ATOMIC_TRUE@	circular_buffer$(EXEEXT)
 @HAVE_BUILTIN_ATOMIC_CXX_TRUE@am__EXEEXT_3 =  \
 @HAVE_BUILTIN_ATOMIC_CXX_TRUE@	annotate_smart_pointer$(EXEEXT) \
 @HAVE_BUILTIN_ATOMIC_CXX_TRUE@	tsan_unittest$(EXEEXT)
-@CXX_CAN_INCLUDE_THREAD_HEADER_TRUE@@HAVE_SHARED_POINTER_ANNOTATION_TRUE@am__EXEEXT_4 = std_thread$(EXEEXT)
+@CXX_CAN_INCLUDE_THREAD_HEADER_TRUE@@HAVE_SHARED_POINTER_ANNOTATION_TRUE@am__EXEEXT_4 = std_atomic$(EXEEXT) \
+@CXX_CAN_INCLUDE_THREAD_HEADER_TRUE@@HAVE_SHARED_POINTER_ANNOTATION_TRUE@	std_list$(EXEEXT) \
+@CXX_CAN_INCLUDE_THREAD_HEADER_TRUE@@HAVE_SHARED_POINTER_ANNOTATION_TRUE@	std_string$(EXEEXT) \
+@CXX_CAN_INCLUDE_THREAD_HEADER_TRUE@@HAVE_SHARED_POINTER_ANNOTATION_TRUE@	std_thread$(EXEEXT) \
+@CXX_CAN_INCLUDE_THREAD_HEADER_TRUE@@HAVE_SHARED_POINTER_ANNOTATION_TRUE@	std_thread2$(EXEEXT)
 @HAVE_OPENMP_TRUE@am__EXEEXT_5 = omp_matinv$(EXEEXT) \
 @HAVE_OPENMP_TRUE@	omp_prime$(EXEEXT) omp_printf$(EXEEXT)
 @HAVE_PTHREAD_BARRIER_TRUE@am__EXEEXT_6 = matinv$(EXEEXT) \
@@ -182,16 +193,23 @@ annotate_rwlock_SOURCES = annotate_rwlock.c
 annotate_rwlock_OBJECTS = annotate_rwlock.$(OBJEXT)
 annotate_rwlock_LDADD = $(LDADD)
 annotate_rwlock_DEPENDENCIES =
+annotate_sem_SOURCES = annotate_sem.c
+annotate_sem_OBJECTS = annotate_sem.$(OBJEXT)
+annotate_sem_LDADD = $(LDADD)
+annotate_sem_DEPENDENCIES =
 am__annotate_smart_pointer_SOURCES_DIST = annotate_smart_pointer.cpp
 @HAVE_BUILTIN_ATOMIC_TRUE@am_annotate_smart_pointer_OBJECTS =  \
 @HAVE_BUILTIN_ATOMIC_TRUE@	annotate_smart_pointer.$(OBJEXT)
 annotate_smart_pointer_OBJECTS = $(am_annotate_smart_pointer_OBJECTS)
 annotate_smart_pointer_LDADD = $(LDADD)
 annotate_smart_pointer_DEPENDENCIES =
-am_annotate_static_OBJECTS = annotate_static.$(OBJEXT)
+am_annotate_static_OBJECTS =  \
+	annotate_static-annotate_static.$(OBJEXT)
 annotate_static_OBJECTS = $(am_annotate_static_OBJECTS)
 annotate_static_LDADD = $(LDADD)
 annotate_static_DEPENDENCIES =
+annotate_static_LINK = $(CXXLD) $(annotate_static_CXXFLAGS) \
+	$(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) -o $@
 annotate_trace_memory_SOURCES = annotate_trace_memory.c
 annotate_trace_memory_OBJECTS = annotate_trace_memory.$(OBJEXT)
 annotate_trace_memory_LDADD = $(LDADD)
@@ -241,6 +259,10 @@ linuxthreads_det_SOURCES = linuxthreads_det.c
 linuxthreads_det_OBJECTS = linuxthreads_det.$(OBJEXT)
 linuxthreads_det_LDADD = $(LDADD)
 linuxthreads_det_DEPENDENCIES =
+am_local_static_OBJECTS = local_static.$(OBJEXT)
+local_static_OBJECTS = $(am_local_static_OBJECTS)
+local_static_LDADD = $(LDADD)
+local_static_DEPENDENCIES =
 matinv_SOURCES = matinv.c
 matinv_OBJECTS = matinv.$(OBJEXT)
 @HAVE_PTHREAD_BARRIER_TRUE@matinv_DEPENDENCIES =  \
@@ -384,12 +406,36 @@ sigalrm_SOURCES = sigalrm.c
 sigalrm_OBJECTS = sigalrm.$(OBJEXT)
 sigalrm_LDADD = $(LDADD)
 sigalrm_DEPENDENCIES =
+am_std_atomic_OBJECTS = std_atomic-std_atomic.$(OBJEXT)
+std_atomic_OBJECTS = $(am_std_atomic_OBJECTS)
+std_atomic_LDADD = $(LDADD)
+std_atomic_DEPENDENCIES =
+std_atomic_LINK = $(CXXLD) $(std_atomic_CXXFLAGS) $(CXXFLAGS) \
+	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+am_std_list_OBJECTS = std_list-std_list.$(OBJEXT)
+std_list_OBJECTS = $(am_std_list_OBJECTS)
+std_list_LDADD = $(LDADD)
+std_list_DEPENDENCIES =
+std_list_LINK = $(CXXLD) $(std_list_CXXFLAGS) $(CXXFLAGS) \
+	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+am_std_string_OBJECTS = std_string-std_string.$(OBJEXT)
+std_string_OBJECTS = $(am_std_string_OBJECTS)
+std_string_LDADD = $(LDADD)
+std_string_DEPENDENCIES =
+std_string_LINK = $(CXXLD) $(std_string_CXXFLAGS) $(CXXFLAGS) \
+	$(AM_LDFLAGS) $(LDFLAGS) -o $@
 am_std_thread_OBJECTS = std_thread-std_thread.$(OBJEXT)
 std_thread_OBJECTS = $(am_std_thread_OBJECTS)
 std_thread_LDADD = $(LDADD)
 std_thread_DEPENDENCIES =
 std_thread_LINK = $(CXXLD) $(std_thread_CXXFLAGS) $(CXXFLAGS) \
-	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+	$(std_thread_LDFLAGS) $(LDFLAGS) -o $@
+am_std_thread2_OBJECTS = std_thread2-std_thread2.$(OBJEXT)
+std_thread2_OBJECTS = $(am_std_thread2_OBJECTS)
+std_thread2_LDADD = $(LDADD)
+std_thread2_DEPENDENCIES =
+std_thread2_LINK = $(CXXLD) $(std_thread2_CXXFLAGS) $(CXXFLAGS) \
+	$(std_thread2_LDFLAGS) $(LDFLAGS) -o $@
 thread_name_SOURCES = thread_name.c
 thread_name_OBJECTS = thread_name.$(OBJEXT)
 thread_name_LDADD = $(LDADD)
@@ -434,34 +480,13 @@ CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
 	-o $@
 SOURCES = annotate_barrier.c annotate_hb_err.c annotate_hb_race.c \
 	annotate_ignore_rw.c annotate_ignore_write.c \
-	annotate_publish_hg.c annotate_rwlock.c \
+	annotate_publish_hg.c annotate_rwlock.c annotate_sem.c \
 	$(annotate_smart_pointer_SOURCES) $(annotate_static_SOURCES) \
 	annotate_trace_memory.c atomic_var.c $(boost_thread_SOURCES) \
 	bug-235681.c circular_buffer.c $(concurrent_close_SOURCES) \
 	custom_alloc.c fp_race.c free_is_write.c hold_lock.c \
-	linuxthreads_det.c matinv.c memory_allocation.c \
-	$(monitor_example_SOURCES) $(new_delete_SOURCES) omp_matinv.c \
-	omp_prime.c omp_printf.c pth_barrier.c pth_barrier_race.c \
-	pth_barrier_reinit.c pth_barrier_thr_cr.c pth_broadcast.c \
-	pth_cancel_locked.c pth_cleanup_handler.c \
-	pth_cond_destroy_busy.c pth_cond_race.c pth_create_chain.c \
-	pth_create_glibc_2_0.c pth_detached.c pth_detached3.c \
-	pth_detached_sem.c pth_inconsistent_cond_wait.c \
-	pth_mutex_reinit.c pth_process_shared_mutex.c pth_spinlock.c \
-	pth_uninitialized_cond.c recursive_mutex.c rwlock_race.c \
-	rwlock_test.c rwlock_type_checking.c sem_as_mutex.c sem_open.c \
-	$(sem_wait_SOURCES) sigalrm.c $(std_thread_SOURCES) \
-	thread_name.c threaded-fork.c trylock.c \
-	$(tsan_unittest_SOURCES) unit_bitmap.c unit_vc.c
-DIST_SOURCES = annotate_barrier.c annotate_hb_err.c annotate_hb_race.c \
-	annotate_ignore_rw.c annotate_ignore_write.c \
-	annotate_publish_hg.c annotate_rwlock.c \
-	$(am__annotate_smart_pointer_SOURCES_DIST) \
-	$(annotate_static_SOURCES) annotate_trace_memory.c \
-	atomic_var.c $(am__boost_thread_SOURCES_DIST) bug-235681.c \
-	circular_buffer.c $(concurrent_close_SOURCES) custom_alloc.c \
-	fp_race.c free_is_write.c hold_lock.c linuxthreads_det.c \
-	matinv.c memory_allocation.c $(monitor_example_SOURCES) \
+	linuxthreads_det.c $(local_static_SOURCES) matinv.c \
+	memory_allocation.c $(monitor_example_SOURCES) \
 	$(new_delete_SOURCES) omp_matinv.c omp_prime.c omp_printf.c \
 	pth_barrier.c pth_barrier_race.c pth_barrier_reinit.c \
 	pth_barrier_thr_cr.c pth_broadcast.c pth_cancel_locked.c \
@@ -472,9 +497,35 @@ DIST_SOURCES = annotate_barrier.c annotate_hb_err.c annotate_hb_race.c \
 	pth_process_shared_mutex.c pth_spinlock.c \
 	pth_uninitialized_cond.c recursive_mutex.c rwlock_race.c \
 	rwlock_test.c rwlock_type_checking.c sem_as_mutex.c sem_open.c \
-	$(sem_wait_SOURCES) sigalrm.c $(std_thread_SOURCES) \
-	thread_name.c threaded-fork.c trylock.c \
-	$(tsan_unittest_SOURCES) unit_bitmap.c unit_vc.c
+	$(sem_wait_SOURCES) sigalrm.c $(std_atomic_SOURCES) \
+	$(std_list_SOURCES) $(std_string_SOURCES) \
+	$(std_thread_SOURCES) $(std_thread2_SOURCES) thread_name.c \
+	threaded-fork.c trylock.c $(tsan_unittest_SOURCES) \
+	unit_bitmap.c unit_vc.c
+DIST_SOURCES = annotate_barrier.c annotate_hb_err.c annotate_hb_race.c \
+	annotate_ignore_rw.c annotate_ignore_write.c \
+	annotate_publish_hg.c annotate_rwlock.c annotate_sem.c \
+	$(am__annotate_smart_pointer_SOURCES_DIST) \
+	$(annotate_static_SOURCES) annotate_trace_memory.c \
+	atomic_var.c $(am__boost_thread_SOURCES_DIST) bug-235681.c \
+	circular_buffer.c $(concurrent_close_SOURCES) custom_alloc.c \
+	fp_race.c free_is_write.c hold_lock.c linuxthreads_det.c \
+	$(local_static_SOURCES) matinv.c memory_allocation.c \
+	$(monitor_example_SOURCES) $(new_delete_SOURCES) omp_matinv.c \
+	omp_prime.c omp_printf.c pth_barrier.c pth_barrier_race.c \
+	pth_barrier_reinit.c pth_barrier_thr_cr.c pth_broadcast.c \
+	pth_cancel_locked.c pth_cleanup_handler.c \
+	pth_cond_destroy_busy.c pth_cond_race.c pth_create_chain.c \
+	pth_create_glibc_2_0.c pth_detached.c pth_detached3.c \
+	pth_detached_sem.c pth_inconsistent_cond_wait.c \
+	pth_mutex_reinit.c pth_process_shared_mutex.c pth_spinlock.c \
+	pth_uninitialized_cond.c recursive_mutex.c rwlock_race.c \
+	rwlock_test.c rwlock_type_checking.c sem_as_mutex.c sem_open.c \
+	$(sem_wait_SOURCES) sigalrm.c $(std_atomic_SOURCES) \
+	$(std_list_SOURCES) $(std_string_SOURCES) \
+	$(std_thread_SOURCES) $(std_thread2_SOURCES) thread_name.c \
+	threaded-fork.c trylock.c $(tsan_unittest_SOURCES) \
+	unit_bitmap.c unit_vc.c
 am__can_run_installinfo = \
   case $$AM_UPDATE_INFO_DIR in \
     n|no|NO) false;; \
@@ -518,9 +569,13 @@ EXEEXT = @EXEEXT@
 FLAG_FNO_STACK_PROTECTOR = @FLAG_FNO_STACK_PROTECTOR@
 FLAG_M32 = @FLAG_M32@
 FLAG_M64 = @FLAG_M64@
+FLAG_MIPS32 = @FLAG_MIPS32@
+FLAG_MIPS64 = @FLAG_MIPS64@
 FLAG_MMMX = @FLAG_MMMX@
 FLAG_MSSE = @FLAG_MSSE@
 FLAG_NO_BUILD_ID = @FLAG_NO_BUILD_ID@
+FLAG_OCTEON = @FLAG_OCTEON@
+FLAG_OCTEON2 = @FLAG_OCTEON2@
 FLAG_T_TEXT = @FLAG_T_TEXT@
 FLAG_UNLIMITED_INLINE_UNIT_GROWTH = @FLAG_UNLIMITED_INLINE_UNIT_GROWTH@
 FLAG_W_EXTRA = @FLAG_W_EXTRA@
@@ -528,7 +583,10 @@ FLAG_W_NO_EMPTY_BODY = @FLAG_W_NO_EMPTY_BODY@
 FLAG_W_NO_FORMAT_ZERO_LENGTH = @FLAG_W_NO_FORMAT_ZERO_LENGTH@
 FLAG_W_NO_NONNULL = @FLAG_W_NO_NONNULL@
 FLAG_W_NO_OVERFLOW = @FLAG_W_NO_OVERFLOW@
+FLAG_W_NO_STATIC_LOCAL_IN_INLINE = @FLAG_W_NO_STATIC_LOCAL_IN_INLINE@
+FLAG_W_NO_TAUTOLOGICAL_COMPARE = @FLAG_W_NO_TAUTOLOGICAL_COMPARE@
 FLAG_W_NO_UNINITIALIZED = @FLAG_W_NO_UNINITIALIZED@
+FLAG_W_NO_UNUSED_FUNCTION = @FLAG_W_NO_UNUSED_FUNCTION@
 GDB = @GDB@
 GLIBC_VERSION = @GLIBC_VERSION@
 GREP = @GREP@
@@ -557,7 +615,7 @@ PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PERL = @PERL@
-PREFERRED_STACK_BOUNDARY = @PREFERRED_STACK_BOUNDARY@
+PREFERRED_STACK_BOUNDARY_2 = @PREFERRED_STACK_BOUNDARY_2@
 RANLIB = @RANLIB@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
@@ -572,6 +630,7 @@ VGCONF_OS = @VGCONF_OS@
 VGCONF_PLATFORM_PRI_CAPS = @VGCONF_PLATFORM_PRI_CAPS@
 VGCONF_PLATFORM_SEC_CAPS = @VGCONF_PLATFORM_SEC_CAPS@
 VGCONF_PLATVARIANT = @VGCONF_PLATVARIANT@
+VG_TMPDIR = @VG_TMPDIR@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
@@ -642,20 +701,24 @@ AM_CFLAGS_BASE = \
 	-Wstrict-prototypes \
 	-Wmissing-declarations \
 	@FLAG_W_NO_FORMAT_ZERO_LENGTH@ \
+	@FLAG_W_NO_TAUTOLOGICAL_COMPARE@ \
 	-fno-strict-aliasing \
 	-fno-builtin
 
-@VGCONF_OS_IS_DARWIN_FALSE@AM_CFLAGS_PIC = -fpic -O -g -fno-omit-frame-pointer -fno-strict-aliasing \
-@VGCONF_OS_IS_DARWIN_FALSE@		-fno-builtin
+@VGCONF_OS_IS_DARWIN_FALSE@AM_CFLAGS_PSO_BASE = -O -g -fno-omit-frame-pointer -fno-strict-aliasing \
+@VGCONF_OS_IS_DARWIN_FALSE@		     -fpic -fno-builtin
 
 
-# These flags are used for building the preload shared objects.
+# These flags are used for building the preload shared objects (PSOs).
 # The aim is to give reasonable performance but also to have good
 # stack traces, since users often see stack traces extending 
-# into (and through) the preloads.
-@VGCONF_OS_IS_DARWIN_TRUE@AM_CFLAGS_PIC = -dynamic -O -g -fno-omit-frame-pointer -fno-strict-aliasing \
-@VGCONF_OS_IS_DARWIN_TRUE@		-mno-dynamic-no-pic -fpic -fPIC \
-@VGCONF_OS_IS_DARWIN_TRUE@		-fno-builtin
+# into (and through) the preloads.  Also, we must use any
+# -mpreferred-stack-boundary flag to build the preload shared
+# objects, since that risks misaligning the client's stack and
+# results in segfaults like (eg) #324050.
+@VGCONF_OS_IS_DARWIN_TRUE@AM_CFLAGS_PSO_BASE = -dynamic \
+@VGCONF_OS_IS_DARWIN_TRUE@		     -O -g -fno-omit-frame-pointer -fno-strict-aliasing \
+@VGCONF_OS_IS_DARWIN_TRUE@		     -fpic -fPIC -fno-builtin
 
 
 # Flags for specific targets.
@@ -666,6 +729,7 @@ AM_CPPFLAGS_@VGCONF_PLATFORM_PRI_CAPS@ = \
 	-I$(top_srcdir) \
 	-I$(top_srcdir)/include \
 	-I$(top_srcdir)/VEX/pub \
+	-I$(top_builddir)/VEX/pub \
 	-DVGA_@VGCONF_ARCH_PRI@=1 \
 	-DVGO_@VGCONF_OS@=1 \
 	-DVGP_@VGCONF_ARCH_PRI@_@VGCONF_OS@=1 \
@@ -675,54 +739,79 @@ AM_CPPFLAGS_@VGCONF_PLATFORM_PRI_CAPS@ = \
 @VGCONF_HAVE_PLATFORM_SEC_TRUE@	-I$(top_srcdir) \
 @VGCONF_HAVE_PLATFORM_SEC_TRUE@	-I$(top_srcdir)/include \
 @VGCONF_HAVE_PLATFORM_SEC_TRUE@	-I$(top_srcdir)/VEX/pub \
+@VGCONF_HAVE_PLATFORM_SEC_TRUE@	-I$(top_builddir)/VEX/pub \
 @VGCONF_HAVE_PLATFORM_SEC_TRUE@	-DVGA_@VGCONF_ARCH_SEC@=1 \
 @VGCONF_HAVE_PLATFORM_SEC_TRUE@	-DVGO_@VGCONF_OS@=1 \
 @VGCONF_HAVE_PLATFORM_SEC_TRUE@	-DVGP_@VGCONF_ARCH_SEC@_@VGCONF_OS@=1 \
 @VGCONF_HAVE_PLATFORM_SEC_TRUE@	-DVGPV_@VGCONF_ARCH_SEC@_@VGCONF_OS@_@VGCONF_PLATVARIANT@=1
 
 AM_FLAG_M3264_X86_LINUX = @FLAG_M32@
-AM_CFLAGS_X86_LINUX = @FLAG_M32@  @PREFERRED_STACK_BOUNDARY@ \
+AM_CFLAGS_X86_LINUX = @FLAG_M32@ @PREFERRED_STACK_BOUNDARY_2@ \
 				$(AM_CFLAGS_BASE) -fomit-frame-pointer
 
+AM_CFLAGS_PSO_X86_LINUX = @FLAG_M32@ $(AM_CFLAGS_BASE) $(AM_CFLAGS_PSO_BASE)
 AM_CCASFLAGS_X86_LINUX = @FLAG_M32@ -g
 AM_FLAG_M3264_AMD64_LINUX = @FLAG_M64@
-AM_CFLAGS_AMD64_LINUX = @FLAG_M64@ @PREFERRED_STACK_BOUNDARY@ \
+AM_CFLAGS_AMD64_LINUX = @FLAG_M64@ \
 				$(AM_CFLAGS_BASE) -fomit-frame-pointer
 
+AM_CFLAGS_PSO_AMD64_LINUX = @FLAG_M64@ $(AM_CFLAGS_BASE) $(AM_CFLAGS_PSO_BASE)
 AM_CCASFLAGS_AMD64_LINUX = @FLAG_M64@ -g
 AM_FLAG_M3264_PPC32_LINUX = @FLAG_M32@
 AM_CFLAGS_PPC32_LINUX = @FLAG_M32@ $(AM_CFLAGS_BASE)
+AM_CFLAGS_PSO_PPC32_LINUX = @FLAG_M32@ $(AM_CFLAGS_BASE) $(AM_CFLAGS_PSO_BASE)
 AM_CCASFLAGS_PPC32_LINUX = @FLAG_M32@ -g
-AM_FLAG_M3264_PPC64_LINUX = @FLAG_M64@
-AM_CFLAGS_PPC64_LINUX = @FLAG_M64@ $(AM_CFLAGS_BASE)
-AM_CCASFLAGS_PPC64_LINUX = @FLAG_M64@ -g
+AM_FLAG_M3264_PPC64BE_LINUX = @FLAG_M64@
+AM_CFLAGS_PPC64BE_LINUX = @FLAG_M64@ $(AM_CFLAGS_BASE)
+AM_CFLAGS_PSO_PPC64BE_LINUX = @FLAG_M64@ $(AM_CFLAGS_BASE) $(AM_CFLAGS_PSO_BASE)
+AM_CCASFLAGS_PPC64BE_LINUX = @FLAG_M64@ -g
+AM_FLAG_M3264_PPC64LE_LINUX = @FLAG_M64@
+AM_CFLAGS_PPC64LE_LINUX = @FLAG_M64@ $(AM_CFLAGS_BASE)
+AM_CFLAGS_PSO_PPC64LE_LINUX = @FLAG_M64@ $(AM_CFLAGS_BASE) $(AM_CFLAGS_PSO_BASE)
+AM_CCASFLAGS_PPC64LE_LINUX = @FLAG_M64@ -g
 AM_FLAG_M3264_ARM_LINUX = @FLAG_M32@
-AM_CFLAGS_ARM_LINUX = @FLAG_M32@ @PREFERRED_STACK_BOUNDARY@ \
+AM_CFLAGS_ARM_LINUX = @FLAG_M32@ \
 			 	$(AM_CFLAGS_BASE) -marm -mcpu=cortex-a8
+
+AM_CFLAGS_PSO_ARM_LINUX = @FLAG_M32@ $(AM_CFLAGS_BASE) \
+				-marm -mcpu=cortex-a8 $(AM_CFLAGS_PSO_BASE)
 
 AM_CCASFLAGS_ARM_LINUX = @FLAG_M32@ \
 				-marm -mcpu=cortex-a8 -g
 
+AM_FLAG_M3264_ARM64_LINUX = @FLAG_M64@
+AM_CFLAGS_ARM64_LINUX = @FLAG_M64@ $(AM_CFLAGS_BASE)
+AM_CFLAGS_PSO_ARM64_LINUX = @FLAG_M64@ $(AM_CFLAGS_BASE) $(AM_CFLAGS_PSO_BASE)
+AM_CCASFLAGS_ARM64_LINUX = @FLAG_M64@ -g
 AM_FLAG_M3264_X86_DARWIN = -arch i386
 AM_CFLAGS_X86_DARWIN = $(WERROR) -arch i386 $(AM_CFLAGS_BASE) \
 				-mmacosx-version-min=10.5 \
 				-fno-stack-protector -fno-pic -fno-PIC
 
+AM_CFLAGS_PSO_X86_DARWIN = $(AM_CFLAGS_X86_DARWIN) $(AM_CFLAGS_PSO_BASE)
 AM_CCASFLAGS_X86_DARWIN = -arch i386 -g
 AM_FLAG_M3264_AMD64_DARWIN = -arch x86_64
 AM_CFLAGS_AMD64_DARWIN = $(WERROR) -arch x86_64 $(AM_CFLAGS_BASE) \
 			    -mmacosx-version-min=10.5 -fno-stack-protector
 
+AM_CFLAGS_PSO_AMD64_DARWIN = $(AM_CFLAGS_AMD64_DARWIN) $(AM_CFLAGS_PSO_BASE)
 AM_CCASFLAGS_AMD64_DARWIN = -arch x86_64 -g
 AM_FLAG_M3264_S390X_LINUX = @FLAG_M64@
 AM_CFLAGS_S390X_LINUX = @FLAG_M64@ $(AM_CFLAGS_BASE) -fomit-frame-pointer
+AM_CFLAGS_PSO_S390X_LINUX = @FLAG_M64@ $(AM_CFLAGS_BASE) $(AM_CFLAGS_PSO_BASE)
 AM_CCASFLAGS_S390X_LINUX = @FLAG_M64@ -g -mzarch -march=z900
 AM_FLAG_M3264_MIPS32_LINUX = @FLAG_M32@
-AM_CFLAGS_MIPS32_LINUX = @FLAG_M32@ $(AM_CFLAGS_BASE) -mips32
-AM_CCASFLAGS_MIPS32_LINUX = @FLAG_M32@ -mips32 -g
+AM_CFLAGS_MIPS32_LINUX = @FLAG_M32@ $(AM_CFLAGS_BASE) @FLAG_MIPS32@
+AM_CFLAGS_PSO_MIPS32_LINUX = @FLAG_M32@ $(AM_CFLAGS_BASE) @FLAG_MIPS32@ \
+				$(AM_CFLAGS_PSO_BASE)
+
+AM_CCASFLAGS_MIPS32_LINUX = @FLAG_M32@ -g @FLAG_MIPS32@
 AM_FLAG_M3264_MIPS64_LINUX = @FLAG_M64@
-AM_CFLAGS_MIPS64_LINUX = @FLAG_M64@ $(AM_CFLAGS_BASE) -mips64
-AM_CCASFLAGS_MIPS64_LINUX = @FLAG_M64@ -mips64 -g
+AM_CFLAGS_MIPS64_LINUX = @FLAG_M64@ $(AM_CFLAGS_BASE) @FLAG_MIPS64@
+AM_CFLAGS_PSO_MIPS64_LINUX = @FLAG_M64@ $(AM_CFLAGS_BASE) @FLAG_MIPS64@ \
+				$(AM_CFLAGS_PSO_BASE)
+
+AM_CCASFLAGS_MIPS64_LINUX = @FLAG_M64@ -g @FLAG_MIPS64@
 
 # Flags for the primary target.  These must be used to build the
 # regtests and performance tests.  In fact, these must be used to
@@ -743,8 +832,10 @@ PRELOAD_LDFLAGS_COMMON_DARWIN = -dynamic -dynamiclib -all_load
 PRELOAD_LDFLAGS_X86_LINUX = $(PRELOAD_LDFLAGS_COMMON_LINUX) @FLAG_M32@
 PRELOAD_LDFLAGS_AMD64_LINUX = $(PRELOAD_LDFLAGS_COMMON_LINUX) @FLAG_M64@
 PRELOAD_LDFLAGS_PPC32_LINUX = $(PRELOAD_LDFLAGS_COMMON_LINUX) @FLAG_M32@
-PRELOAD_LDFLAGS_PPC64_LINUX = $(PRELOAD_LDFLAGS_COMMON_LINUX) @FLAG_M64@
+PRELOAD_LDFLAGS_PPC64BE_LINUX = $(PRELOAD_LDFLAGS_COMMON_LINUX) @FLAG_M64@
+PRELOAD_LDFLAGS_PPC64LE_LINUX = $(PRELOAD_LDFLAGS_COMMON_LINUX) @FLAG_M64@
 PRELOAD_LDFLAGS_ARM_LINUX = $(PRELOAD_LDFLAGS_COMMON_LINUX) @FLAG_M32@
+PRELOAD_LDFLAGS_ARM64_LINUX = $(PRELOAD_LDFLAGS_COMMON_LINUX) @FLAG_M64@
 PRELOAD_LDFLAGS_X86_DARWIN = $(PRELOAD_LDFLAGS_COMMON_DARWIN) -arch i386
 PRELOAD_LDFLAGS_AMD64_DARWIN = $(PRELOAD_LDFLAGS_COMMON_DARWIN) -arch x86_64
 PRELOAD_LDFLAGS_S390X_LINUX = $(PRELOAD_LDFLAGS_COMMON_LINUX) @FLAG_M64@
@@ -752,8 +843,9 @@ PRELOAD_LDFLAGS_MIPS32_LINUX = $(PRELOAD_LDFLAGS_COMMON_LINUX) @FLAG_M32@
 PRELOAD_LDFLAGS_MIPS64_LINUX = $(PRELOAD_LDFLAGS_COMMON_LINUX) @FLAG_M64@
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/include \
 	-I$(top_srcdir)/coregrind -I$(top_builddir)/include \
-	-I$(top_srcdir)/VEX/pub -DVGA_@VGCONF_ARCH_PRI@=1 \
-	-DVGO_@VGCONF_OS@=1 -DVGP_@VGCONF_ARCH_PRI@_@VGCONF_OS@=1 \
+	-I$(top_srcdir)/VEX/pub -I$(top_builddir)/VEX/pub \
+	-DVGA_@VGCONF_ARCH_PRI@=1 -DVGO_@VGCONF_OS@=1 \
+	-DVGP_@VGCONF_ARCH_PRI@_@VGCONF_OS@=1 \
 	-DVGPV_@VGCONF_ARCH_PRI@_@VGCONF_OS@_@VGCONF_PLATVARIANT@=1 \
 	$(am__append_2)
 
@@ -833,6 +925,8 @@ EXTRA_DIST = \
 	annotate_trace_memory_xml.stderr.exp-64bit  \
 	annotate_trace_memory_xml.stderr.exp-mips32 \
 	annotate_trace_memory_xml.vgtest	    \
+	annotate_sem.stderr.exp                     \
+	annotate_sem.vgtest                         \
 	annotate_static.stderr.exp	            \
 	annotate_static.vgtest		            \
 	atomic_var.stderr.exp			    \
@@ -857,10 +951,14 @@ EXTRA_DIST = \
 	custom_alloc_fiw.stderr.exp		    \
 	custom_alloc_fiw.vgtest			    \
 	fp_race.stderr.exp                          \
+	fp_race.stderr.exp-mips32-be                \
+	fp_race.stderr.exp-mips32-le                \
 	fp_race.vgtest                              \
 	fp_race2.stderr.exp                         \
 	fp_race2.vgtest                             \
 	fp_race_xml.stderr.exp                      \
+	fp_race_xml.stderr.exp-mips32-be            \
+	fp_race_xml.stderr.exp-mips32-le            \
 	fp_race_xml.vgtest                          \
 	free_is_write.stderr.exp		    \
 	free_is_write.vgtest			    \
@@ -888,6 +986,8 @@ EXTRA_DIST = \
 	linuxthreads_det.stdout.exp                 \
 	linuxthreads_det.stdout.exp-linuxthreads    \
 	linuxthreads_det.vgtest                     \
+	local_static.stderr.exp                     \
+	local_static.vgtest                         \
 	matinv.stderr.exp                           \
 	matinv.stdout.exp                           \
 	matinv.vgtest                               \
@@ -977,16 +1077,24 @@ EXTRA_DIST = \
 	rwlock_type_checking.stderr.exp	            \
 	rwlock_type_checking.vgtest                 \
 	sem_as_mutex.stderr.exp                     \
+	sem_as_mutex.stderr.exp-mips32-be           \
+	sem_as_mutex.stderr.exp-mips32-le           \
 	sem_as_mutex.vgtest                         \
 	sem_as_mutex2.stderr.exp                    \
 	sem_as_mutex2.vgtest                        \
 	sem_as_mutex3.stderr.exp                    \
+	sem_as_mutex3.stderr.exp-mips32-be          \
+	sem_as_mutex3.stderr.exp-mips32-le          \
 	sem_as_mutex3.vgtest                        \
 	sem_open.stderr.exp                         \
+	sem_open.stderr.exp-mips32-be               \
+	sem_open.stderr.exp-mips32-le               \
 	sem_open.vgtest                             \
 	sem_open2.stderr.exp                        \
 	sem_open2.vgtest                            \
 	sem_open3.stderr.exp                        \
+	sem_open3.stderr.exp-mips32-be              \
+	sem_open3.stderr.exp-mips32-le              \
 	sem_open3.vgtest                            \
 	sem_open_traced.stderr.exp                  \
 	sem_open_traced.vgtest                      \
@@ -996,8 +1104,19 @@ EXTRA_DIST = \
 	sigalrm.vgtest                              \
 	sigaltstack.stderr.exp                      \
 	sigaltstack.vgtest                          \
+	std_atomic.stderr.exp		  	    \
+	std_atomic.vgtest			            \
+	std_list.stderr.exp		  	    \
+	std_list.vgtest			            \
+	std_string.stderr.exp		  	    \
+	std_string.vgtest			    \
 	std_thread.stderr.exp		  	    \
 	std_thread.vgtest			    \
+	std_thread2.stderr.exp		  	    \
+	std_thread2.vgtest			    \
+	std_thread2.supp			    \
+	str_tester.stderr.exp		  	    \
+	str_tester.vgtest			    \
 	tc01_simple_race.stderr.exp                 \
 	tc01_simple_race.vgtest                     \
 	tc02_simple_tls.stderr.exp                  \
@@ -1061,6 +1180,10 @@ EXTRA_DIST = \
 	thread_name_xml.vgtest			    \
 	threaded-fork.stderr.exp		    \
 	threaded-fork.vgtest			    \
+	threaded-fork-vcs.stderr.exp		    \
+	threaded-fork-vcs.vgtest		    \
+	tls_threads.stderr.exp			    \
+	tls_threads.vgtest			    \
 	trylock.stderr.exp                          \
 	trylock.vgtest				    \
 	unit_bitmap.stderr.exp                      \
@@ -1089,6 +1212,8 @@ unit_vc_LDADD = # nothing, i.e. not -lpthread
 @HAVE_BOOST_1_35_TRUE@boost_thread_LDADD = $(BOOST_LIBS)
 @HAVE_BUILTIN_ATOMIC_TRUE@annotate_smart_pointer_SOURCES = annotate_smart_pointer.cpp
 annotate_static_SOURCES = annotate_static.cpp
+annotate_static_CXXFLAGS = $(AM_CXXFLAGS) @FLAG_W_NO_UNUSED_FUNCTION@
+local_static_SOURCES = local_static.cpp
 @HAVE_OPENMP_TRUE@omp_matinv_CFLAGS = $(AM_CFLAGS) -fopenmp
 @HAVE_OPENMP_TRUE@omp_matinv_LDFLAGS = -fopenmp
 @HAVE_OPENMP_TRUE@omp_matinv_LDADD = $(LDADD) -lm
@@ -1099,8 +1224,21 @@ annotate_static_SOURCES = annotate_static.cpp
 @HAVE_OPENMP_TRUE@omp_printf_LDFLAGS = -fopenmp
 @HAVE_OPENMP_TRUE@omp_printf_LDADD = $(LDADD) -lm
 @HAVE_PTHREAD_BARRIER_TRUE@matinv_LDADD = $(LDADD) -lm
+std_atomic_SOURCES = std_atomic.cpp
+std_atomic_CXXFLAGS = $(AM_CXXFLAGS) -std=c++0x -Wno-sign-compare
+std_list_SOURCES = std_list.cpp
+std_list_CXXFLAGS = $(AM_CXXFLAGS) -std=c++0x -Wno-sign-compare
+std_string_SOURCES = std_string.cpp
+std_string_CXXFLAGS = $(AM_CXXFLAGS) -std=c++0x -Wno-sign-compare
+
+# Note: -Wl,--no-as-needed is a workaround for
+# https://bugs.launchpad.net/ubuntu/+source/gcc-defaults/+bug/1228201
 std_thread_SOURCES = std_thread.cpp
 std_thread_CXXFLAGS = $(AM_CXXFLAGS) -std=c++0x
+std_thread_LDFLAGS = -Wl,--no-as-needed
+std_thread2_SOURCES = std_thread2.cpp
+std_thread2_CXXFLAGS = $(AM_CXXFLAGS) -std=c++0x
+std_thread2_LDFLAGS = -Wl,--no-as-needed
 sem_wait_SOURCES = sem_wait.cpp
 all: all-am
 
@@ -1161,12 +1299,15 @@ annotate_publish_hg$(EXEEXT): $(annotate_publish_hg_OBJECTS) $(annotate_publish_
 annotate_rwlock$(EXEEXT): $(annotate_rwlock_OBJECTS) $(annotate_rwlock_DEPENDENCIES) $(EXTRA_annotate_rwlock_DEPENDENCIES) 
 	@rm -f annotate_rwlock$(EXEEXT)
 	$(LINK) $(annotate_rwlock_OBJECTS) $(annotate_rwlock_LDADD) $(LIBS)
+annotate_sem$(EXEEXT): $(annotate_sem_OBJECTS) $(annotate_sem_DEPENDENCIES) $(EXTRA_annotate_sem_DEPENDENCIES) 
+	@rm -f annotate_sem$(EXEEXT)
+	$(LINK) $(annotate_sem_OBJECTS) $(annotate_sem_LDADD) $(LIBS)
 annotate_smart_pointer$(EXEEXT): $(annotate_smart_pointer_OBJECTS) $(annotate_smart_pointer_DEPENDENCIES) $(EXTRA_annotate_smart_pointer_DEPENDENCIES) 
 	@rm -f annotate_smart_pointer$(EXEEXT)
 	$(CXXLINK) $(annotate_smart_pointer_OBJECTS) $(annotate_smart_pointer_LDADD) $(LIBS)
 annotate_static$(EXEEXT): $(annotate_static_OBJECTS) $(annotate_static_DEPENDENCIES) $(EXTRA_annotate_static_DEPENDENCIES) 
 	@rm -f annotate_static$(EXEEXT)
-	$(CXXLINK) $(annotate_static_OBJECTS) $(annotate_static_LDADD) $(LIBS)
+	$(annotate_static_LINK) $(annotate_static_OBJECTS) $(annotate_static_LDADD) $(LIBS)
 annotate_trace_memory$(EXEEXT): $(annotate_trace_memory_OBJECTS) $(annotate_trace_memory_DEPENDENCIES) $(EXTRA_annotate_trace_memory_DEPENDENCIES) 
 	@rm -f annotate_trace_memory$(EXEEXT)
 	$(LINK) $(annotate_trace_memory_OBJECTS) $(annotate_trace_memory_LDADD) $(LIBS)
@@ -1200,6 +1341,9 @@ hold_lock$(EXEEXT): $(hold_lock_OBJECTS) $(hold_lock_DEPENDENCIES) $(EXTRA_hold_
 linuxthreads_det$(EXEEXT): $(linuxthreads_det_OBJECTS) $(linuxthreads_det_DEPENDENCIES) $(EXTRA_linuxthreads_det_DEPENDENCIES) 
 	@rm -f linuxthreads_det$(EXEEXT)
 	$(LINK) $(linuxthreads_det_OBJECTS) $(linuxthreads_det_LDADD) $(LIBS)
+local_static$(EXEEXT): $(local_static_OBJECTS) $(local_static_DEPENDENCIES) $(EXTRA_local_static_DEPENDENCIES) 
+	@rm -f local_static$(EXEEXT)
+	$(CXXLINK) $(local_static_OBJECTS) $(local_static_LDADD) $(LIBS)
 matinv$(EXEEXT): $(matinv_OBJECTS) $(matinv_DEPENDENCIES) $(EXTRA_matinv_DEPENDENCIES) 
 	@rm -f matinv$(EXEEXT)
 	$(LINK) $(matinv_OBJECTS) $(matinv_LDADD) $(LIBS)
@@ -1302,9 +1446,21 @@ sem_wait$(EXEEXT): $(sem_wait_OBJECTS) $(sem_wait_DEPENDENCIES) $(EXTRA_sem_wait
 sigalrm$(EXEEXT): $(sigalrm_OBJECTS) $(sigalrm_DEPENDENCIES) $(EXTRA_sigalrm_DEPENDENCIES) 
 	@rm -f sigalrm$(EXEEXT)
 	$(LINK) $(sigalrm_OBJECTS) $(sigalrm_LDADD) $(LIBS)
+std_atomic$(EXEEXT): $(std_atomic_OBJECTS) $(std_atomic_DEPENDENCIES) $(EXTRA_std_atomic_DEPENDENCIES) 
+	@rm -f std_atomic$(EXEEXT)
+	$(std_atomic_LINK) $(std_atomic_OBJECTS) $(std_atomic_LDADD) $(LIBS)
+std_list$(EXEEXT): $(std_list_OBJECTS) $(std_list_DEPENDENCIES) $(EXTRA_std_list_DEPENDENCIES) 
+	@rm -f std_list$(EXEEXT)
+	$(std_list_LINK) $(std_list_OBJECTS) $(std_list_LDADD) $(LIBS)
+std_string$(EXEEXT): $(std_string_OBJECTS) $(std_string_DEPENDENCIES) $(EXTRA_std_string_DEPENDENCIES) 
+	@rm -f std_string$(EXEEXT)
+	$(std_string_LINK) $(std_string_OBJECTS) $(std_string_LDADD) $(LIBS)
 std_thread$(EXEEXT): $(std_thread_OBJECTS) $(std_thread_DEPENDENCIES) $(EXTRA_std_thread_DEPENDENCIES) 
 	@rm -f std_thread$(EXEEXT)
 	$(std_thread_LINK) $(std_thread_OBJECTS) $(std_thread_LDADD) $(LIBS)
+std_thread2$(EXEEXT): $(std_thread2_OBJECTS) $(std_thread2_DEPENDENCIES) $(EXTRA_std_thread2_DEPENDENCIES) 
+	@rm -f std_thread2$(EXEEXT)
+	$(std_thread2_LINK) $(std_thread2_OBJECTS) $(std_thread2_LDADD) $(LIBS)
 thread_name$(EXEEXT): $(thread_name_OBJECTS) $(thread_name_DEPENDENCIES) $(EXTRA_thread_name_DEPENDENCIES) 
 	@rm -f thread_name$(EXEEXT)
 	$(LINK) $(thread_name_OBJECTS) $(thread_name_LDADD) $(LIBS)
@@ -1337,8 +1493,9 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/annotate_ignore_write.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/annotate_publish_hg.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/annotate_rwlock.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/annotate_sem.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/annotate_smart_pointer.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/annotate_static.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/annotate_static-annotate_static.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/annotate_trace_memory.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/atomic_var.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/boost_thread-boost_thread.Po@am__quote@
@@ -1350,6 +1507,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/free_is_write.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/hold_lock.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/linuxthreads_det.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/local_static.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/matinv.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/memory_allocation.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/monitor_example.Po@am__quote@
@@ -1384,7 +1542,11 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sem_open.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sem_wait.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/sigalrm.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/std_atomic-std_atomic.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/std_list-std_list.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/std_string-std_string.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/std_thread-std_thread.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/std_thread2-std_thread2.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/thread_name.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/threaded-fork.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/trylock.Po@am__quote@
@@ -1508,6 +1670,20 @@ unit_vc-unit_vc.obj: unit_vc.c
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
+annotate_static-annotate_static.o: annotate_static.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(annotate_static_CXXFLAGS) $(CXXFLAGS) -MT annotate_static-annotate_static.o -MD -MP -MF $(DEPDIR)/annotate_static-annotate_static.Tpo -c -o annotate_static-annotate_static.o `test -f 'annotate_static.cpp' || echo '$(srcdir)/'`annotate_static.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/annotate_static-annotate_static.Tpo $(DEPDIR)/annotate_static-annotate_static.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='annotate_static.cpp' object='annotate_static-annotate_static.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(annotate_static_CXXFLAGS) $(CXXFLAGS) -c -o annotate_static-annotate_static.o `test -f 'annotate_static.cpp' || echo '$(srcdir)/'`annotate_static.cpp
+
+annotate_static-annotate_static.obj: annotate_static.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(annotate_static_CXXFLAGS) $(CXXFLAGS) -MT annotate_static-annotate_static.obj -MD -MP -MF $(DEPDIR)/annotate_static-annotate_static.Tpo -c -o annotate_static-annotate_static.obj `if test -f 'annotate_static.cpp'; then $(CYGPATH_W) 'annotate_static.cpp'; else $(CYGPATH_W) '$(srcdir)/annotate_static.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/annotate_static-annotate_static.Tpo $(DEPDIR)/annotate_static-annotate_static.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='annotate_static.cpp' object='annotate_static-annotate_static.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(annotate_static_CXXFLAGS) $(CXXFLAGS) -c -o annotate_static-annotate_static.obj `if test -f 'annotate_static.cpp'; then $(CYGPATH_W) 'annotate_static.cpp'; else $(CYGPATH_W) '$(srcdir)/annotate_static.cpp'; fi`
+
 boost_thread-boost_thread.o: boost_thread.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(boost_thread_CXXFLAGS) $(CXXFLAGS) -MT boost_thread-boost_thread.o -MD -MP -MF $(DEPDIR)/boost_thread-boost_thread.Tpo -c -o boost_thread-boost_thread.o `test -f 'boost_thread.cpp' || echo '$(srcdir)/'`boost_thread.cpp
 @am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/boost_thread-boost_thread.Tpo $(DEPDIR)/boost_thread-boost_thread.Po
@@ -1522,6 +1698,48 @@ boost_thread-boost_thread.obj: boost_thread.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(boost_thread_CXXFLAGS) $(CXXFLAGS) -c -o boost_thread-boost_thread.obj `if test -f 'boost_thread.cpp'; then $(CYGPATH_W) 'boost_thread.cpp'; else $(CYGPATH_W) '$(srcdir)/boost_thread.cpp'; fi`
 
+std_atomic-std_atomic.o: std_atomic.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(std_atomic_CXXFLAGS) $(CXXFLAGS) -MT std_atomic-std_atomic.o -MD -MP -MF $(DEPDIR)/std_atomic-std_atomic.Tpo -c -o std_atomic-std_atomic.o `test -f 'std_atomic.cpp' || echo '$(srcdir)/'`std_atomic.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/std_atomic-std_atomic.Tpo $(DEPDIR)/std_atomic-std_atomic.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='std_atomic.cpp' object='std_atomic-std_atomic.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(std_atomic_CXXFLAGS) $(CXXFLAGS) -c -o std_atomic-std_atomic.o `test -f 'std_atomic.cpp' || echo '$(srcdir)/'`std_atomic.cpp
+
+std_atomic-std_atomic.obj: std_atomic.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(std_atomic_CXXFLAGS) $(CXXFLAGS) -MT std_atomic-std_atomic.obj -MD -MP -MF $(DEPDIR)/std_atomic-std_atomic.Tpo -c -o std_atomic-std_atomic.obj `if test -f 'std_atomic.cpp'; then $(CYGPATH_W) 'std_atomic.cpp'; else $(CYGPATH_W) '$(srcdir)/std_atomic.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/std_atomic-std_atomic.Tpo $(DEPDIR)/std_atomic-std_atomic.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='std_atomic.cpp' object='std_atomic-std_atomic.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(std_atomic_CXXFLAGS) $(CXXFLAGS) -c -o std_atomic-std_atomic.obj `if test -f 'std_atomic.cpp'; then $(CYGPATH_W) 'std_atomic.cpp'; else $(CYGPATH_W) '$(srcdir)/std_atomic.cpp'; fi`
+
+std_list-std_list.o: std_list.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(std_list_CXXFLAGS) $(CXXFLAGS) -MT std_list-std_list.o -MD -MP -MF $(DEPDIR)/std_list-std_list.Tpo -c -o std_list-std_list.o `test -f 'std_list.cpp' || echo '$(srcdir)/'`std_list.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/std_list-std_list.Tpo $(DEPDIR)/std_list-std_list.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='std_list.cpp' object='std_list-std_list.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(std_list_CXXFLAGS) $(CXXFLAGS) -c -o std_list-std_list.o `test -f 'std_list.cpp' || echo '$(srcdir)/'`std_list.cpp
+
+std_list-std_list.obj: std_list.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(std_list_CXXFLAGS) $(CXXFLAGS) -MT std_list-std_list.obj -MD -MP -MF $(DEPDIR)/std_list-std_list.Tpo -c -o std_list-std_list.obj `if test -f 'std_list.cpp'; then $(CYGPATH_W) 'std_list.cpp'; else $(CYGPATH_W) '$(srcdir)/std_list.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/std_list-std_list.Tpo $(DEPDIR)/std_list-std_list.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='std_list.cpp' object='std_list-std_list.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(std_list_CXXFLAGS) $(CXXFLAGS) -c -o std_list-std_list.obj `if test -f 'std_list.cpp'; then $(CYGPATH_W) 'std_list.cpp'; else $(CYGPATH_W) '$(srcdir)/std_list.cpp'; fi`
+
+std_string-std_string.o: std_string.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(std_string_CXXFLAGS) $(CXXFLAGS) -MT std_string-std_string.o -MD -MP -MF $(DEPDIR)/std_string-std_string.Tpo -c -o std_string-std_string.o `test -f 'std_string.cpp' || echo '$(srcdir)/'`std_string.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/std_string-std_string.Tpo $(DEPDIR)/std_string-std_string.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='std_string.cpp' object='std_string-std_string.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(std_string_CXXFLAGS) $(CXXFLAGS) -c -o std_string-std_string.o `test -f 'std_string.cpp' || echo '$(srcdir)/'`std_string.cpp
+
+std_string-std_string.obj: std_string.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(std_string_CXXFLAGS) $(CXXFLAGS) -MT std_string-std_string.obj -MD -MP -MF $(DEPDIR)/std_string-std_string.Tpo -c -o std_string-std_string.obj `if test -f 'std_string.cpp'; then $(CYGPATH_W) 'std_string.cpp'; else $(CYGPATH_W) '$(srcdir)/std_string.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/std_string-std_string.Tpo $(DEPDIR)/std_string-std_string.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='std_string.cpp' object='std_string-std_string.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(std_string_CXXFLAGS) $(CXXFLAGS) -c -o std_string-std_string.obj `if test -f 'std_string.cpp'; then $(CYGPATH_W) 'std_string.cpp'; else $(CYGPATH_W) '$(srcdir)/std_string.cpp'; fi`
+
 std_thread-std_thread.o: std_thread.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(std_thread_CXXFLAGS) $(CXXFLAGS) -MT std_thread-std_thread.o -MD -MP -MF $(DEPDIR)/std_thread-std_thread.Tpo -c -o std_thread-std_thread.o `test -f 'std_thread.cpp' || echo '$(srcdir)/'`std_thread.cpp
 @am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/std_thread-std_thread.Tpo $(DEPDIR)/std_thread-std_thread.Po
@@ -1535,6 +1753,20 @@ std_thread-std_thread.obj: std_thread.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='std_thread.cpp' object='std_thread-std_thread.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(std_thread_CXXFLAGS) $(CXXFLAGS) -c -o std_thread-std_thread.obj `if test -f 'std_thread.cpp'; then $(CYGPATH_W) 'std_thread.cpp'; else $(CYGPATH_W) '$(srcdir)/std_thread.cpp'; fi`
+
+std_thread2-std_thread2.o: std_thread2.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(std_thread2_CXXFLAGS) $(CXXFLAGS) -MT std_thread2-std_thread2.o -MD -MP -MF $(DEPDIR)/std_thread2-std_thread2.Tpo -c -o std_thread2-std_thread2.o `test -f 'std_thread2.cpp' || echo '$(srcdir)/'`std_thread2.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/std_thread2-std_thread2.Tpo $(DEPDIR)/std_thread2-std_thread2.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='std_thread2.cpp' object='std_thread2-std_thread2.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(std_thread2_CXXFLAGS) $(CXXFLAGS) -c -o std_thread2-std_thread2.o `test -f 'std_thread2.cpp' || echo '$(srcdir)/'`std_thread2.cpp
+
+std_thread2-std_thread2.obj: std_thread2.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(std_thread2_CXXFLAGS) $(CXXFLAGS) -MT std_thread2-std_thread2.obj -MD -MP -MF $(DEPDIR)/std_thread2-std_thread2.Tpo -c -o std_thread2-std_thread2.obj `if test -f 'std_thread2.cpp'; then $(CYGPATH_W) 'std_thread2.cpp'; else $(CYGPATH_W) '$(srcdir)/std_thread2.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/std_thread2-std_thread2.Tpo $(DEPDIR)/std_thread2-std_thread2.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='std_thread2.cpp' object='std_thread2-std_thread2.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(std_thread2_CXXFLAGS) $(CXXFLAGS) -c -o std_thread2-std_thread2.obj `if test -f 'std_thread2.cpp'; then $(CYGPATH_W) 'std_thread2.cpp'; else $(CYGPATH_W) '$(srcdir)/std_thread2.cpp'; fi`
 
 tsan_unittest-tsan_unittest.o: tsan_unittest.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(tsan_unittest_CXXFLAGS) $(CXXFLAGS) -MT tsan_unittest-tsan_unittest.o -MD -MP -MF $(DEPDIR)/tsan_unittest-tsan_unittest.Tpo -c -o tsan_unittest-tsan_unittest.o `test -f 'tsan_unittest.cpp' || echo '$(srcdir)/'`tsan_unittest.cpp
@@ -1802,6 +2034,14 @@ install-noinst_PROGRAMS: $(noinst_PROGRAMS)
 	  $(INSTALL_PROGRAM) $$f $(DESTDIR)$(pkglibdir); \
 	done
 
+# This is used by coregrind/Makefile.am and by <tool>/Makefile.am for doing
+# "make uninstall".  It removes $(noinst_PROGRAMS) from $prefix/lib/valgrind/.
+# It needs to be depended on by an 'uninstall-local' rule.
+uninstall-noinst_PROGRAMS:
+	for f in $(noinst_PROGRAMS); do \
+	  rm -f $(DESTDIR)$(pkglibdir)/$$f; \
+	done
+
 # Similar to install-noinst_PROGRAMS.
 # Nb: we don't use $(INSTALL_PROGRAM) here because it doesn't work with
 # directories.  XXX: not sure whether the resulting permissions will be
@@ -1810,6 +2050,12 @@ install-noinst_DSYMS: build-noinst_DSYMS
 	$(mkinstalldirs) $(DESTDIR)$(pkglibdir); \
 	for f in $(noinst_DSYMS); do \
 	  cp -R $$f.dSYM $(DESTDIR)$(pkglibdir); \
+	done
+
+# Similar to uninstall-noinst_PROGRAMS.
+uninstall-noinst_DSYMS:
+	for f in $(noinst_DSYMS); do \
+	  rm -f $(DESTDIR)$(pkglibdir)/$$f.dSYM; \
 	done
 
 # This needs to be depended on by a 'clean-local' rule.

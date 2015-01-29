@@ -135,9 +135,13 @@ EXEEXT = @EXEEXT@
 FLAG_FNO_STACK_PROTECTOR = @FLAG_FNO_STACK_PROTECTOR@
 FLAG_M32 = @FLAG_M32@
 FLAG_M64 = @FLAG_M64@
+FLAG_MIPS32 = @FLAG_MIPS32@
+FLAG_MIPS64 = @FLAG_MIPS64@
 FLAG_MMMX = @FLAG_MMMX@
 FLAG_MSSE = @FLAG_MSSE@
 FLAG_NO_BUILD_ID = @FLAG_NO_BUILD_ID@
+FLAG_OCTEON = @FLAG_OCTEON@
+FLAG_OCTEON2 = @FLAG_OCTEON2@
 FLAG_T_TEXT = @FLAG_T_TEXT@
 FLAG_UNLIMITED_INLINE_UNIT_GROWTH = @FLAG_UNLIMITED_INLINE_UNIT_GROWTH@
 FLAG_W_EXTRA = @FLAG_W_EXTRA@
@@ -145,7 +149,10 @@ FLAG_W_NO_EMPTY_BODY = @FLAG_W_NO_EMPTY_BODY@
 FLAG_W_NO_FORMAT_ZERO_LENGTH = @FLAG_W_NO_FORMAT_ZERO_LENGTH@
 FLAG_W_NO_NONNULL = @FLAG_W_NO_NONNULL@
 FLAG_W_NO_OVERFLOW = @FLAG_W_NO_OVERFLOW@
+FLAG_W_NO_STATIC_LOCAL_IN_INLINE = @FLAG_W_NO_STATIC_LOCAL_IN_INLINE@
+FLAG_W_NO_TAUTOLOGICAL_COMPARE = @FLAG_W_NO_TAUTOLOGICAL_COMPARE@
 FLAG_W_NO_UNINITIALIZED = @FLAG_W_NO_UNINITIALIZED@
+FLAG_W_NO_UNUSED_FUNCTION = @FLAG_W_NO_UNUSED_FUNCTION@
 GDB = @GDB@
 GLIBC_VERSION = @GLIBC_VERSION@
 GREP = @GREP@
@@ -174,7 +181,7 @@ PACKAGE_URL = @PACKAGE_URL@
 PACKAGE_VERSION = @PACKAGE_VERSION@
 PATH_SEPARATOR = @PATH_SEPARATOR@
 PERL = @PERL@
-PREFERRED_STACK_BOUNDARY = @PREFERRED_STACK_BOUNDARY@
+PREFERRED_STACK_BOUNDARY_2 = @PREFERRED_STACK_BOUNDARY_2@
 RANLIB = @RANLIB@
 SED = @SED@
 SET_MAKE = @SET_MAKE@
@@ -189,6 +196,7 @@ VGCONF_OS = @VGCONF_OS@
 VGCONF_PLATFORM_PRI_CAPS = @VGCONF_PLATFORM_PRI_CAPS@
 VGCONF_PLATFORM_SEC_CAPS = @VGCONF_PLATFORM_SEC_CAPS@
 VGCONF_PLATVARIANT = @VGCONF_PLATVARIANT@
+VG_TMPDIR = @VG_TMPDIR@
 abs_builddir = @abs_builddir@
 abs_srcdir = @abs_srcdir@
 abs_top_builddir = @abs_top_builddir@
@@ -246,10 +254,12 @@ top_srcdir = @top_srcdir@
 nobase_pkginclude_HEADERS = \
 	pub_tool_basics.h 		\
 	pub_tool_basics_asm.h 		\
+	pub_tool_addrinfo.h 		\
 	pub_tool_aspacehl.h 		\
 	pub_tool_aspacemgr.h 		\
 	pub_tool_clientstate.h		\
 	pub_tool_clreq.h		\
+	pub_tool_deduppoolalloc.h	\
 	pub_tool_debuginfo.h 		\
 	pub_tool_errormgr.h 		\
 	pub_tool_execontext.h 		\
@@ -267,6 +277,7 @@ nobase_pkginclude_HEADERS = \
 	pub_tool_mallocfree.h 		\
 	pub_tool_options.h 		\
 	pub_tool_oset.h 		\
+	pub_tool_rangemap.h		\
 	pub_tool_redir.h		\
 	pub_tool_replacemalloc.h	\
 	pub_tool_seqmatch.h		\
@@ -284,6 +295,7 @@ nobase_pkginclude_HEADERS = \
 	vki/vki-linux.h			\
 	vki/vki-darwin.h		\
 	vki/vki-posixtypes-amd64-linux.h \
+	vki/vki-posixtypes-arm64-linux.h \
 	vki/vki-posixtypes-ppc32-linux.h \
 	vki/vki-posixtypes-ppc64-linux.h \
 	vki/vki-posixtypes-x86-linux.h	 \
@@ -292,6 +304,7 @@ nobase_pkginclude_HEADERS = \
 	vki/vki-posixtypes-mips32-linux.h \
 	vki/vki-posixtypes-mips64-linux.h \
 	vki/vki-amd64-linux.h		\
+	vki/vki-arm64-linux.h		\
 	vki/vki-ppc32-linux.h		\
 	vki/vki-ppc64-linux.h		\
 	vki/vki-x86-linux.h		\
@@ -300,6 +313,7 @@ nobase_pkginclude_HEADERS = \
 	vki/vki-mips32-linux.h		\
 	vki/vki-mips64-linux.h		\
 	vki/vki-scnums-amd64-linux.h	\
+	vki/vki-scnums-arm64-linux.h	\
 	vki/vki-scnums-ppc32-linux.h	\
 	vki/vki-scnums-ppc64-linux.h	\
 	vki/vki-scnums-x86-linux.h	\
@@ -316,6 +330,7 @@ nobase_pkginclude_HEADERS = \
 	vki/vki-xen-memory.h		\
 	vki/vki-xen-mmuext.h		\
 	vki/vki-xen-sysctl.h		\
+	vki/vki-xen-tmem.h		\
 	vki/vki-xen-version.h		\
 	vki/vki-xen-x86.h		\
 	vki/vki-linux-drm.h

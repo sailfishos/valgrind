@@ -37,13 +37,14 @@
 <dt><span class="sect2"><a href="drd-manual.html#drd-manual.lock-contention">8.2.3. Detected Errors: Lock Contention</a></span></dt>
 <dt><span class="sect2"><a href="drd-manual.html#drd-manual.api-checks">8.2.4. Detected Errors: Misuse of the POSIX threads API</a></span></dt>
 <dt><span class="sect2"><a href="drd-manual.html#drd-manual.clientreqs">8.2.5. Client Requests</a></span></dt>
-<dt><span class="sect2"><a href="drd-manual.html#drd-manual.gnome">8.2.6. Debugging GNOME Programs</a></span></dt>
-<dt><span class="sect2"><a href="drd-manual.html#drd-manual.boost.thread">8.2.7. Debugging Boost.Thread Programs</a></span></dt>
-<dt><span class="sect2"><a href="drd-manual.html#drd-manual.openmp">8.2.8. Debugging OpenMP Programs</a></span></dt>
-<dt><span class="sect2"><a href="drd-manual.html#drd-manual.cust-mem-alloc">8.2.9. DRD and Custom Memory Allocators</a></span></dt>
-<dt><span class="sect2"><a href="drd-manual.html#drd-manual.drd-versus-memcheck">8.2.10. DRD Versus Memcheck</a></span></dt>
-<dt><span class="sect2"><a href="drd-manual.html#drd-manual.resource-requirements">8.2.11. Resource Requirements</a></span></dt>
-<dt><span class="sect2"><a href="drd-manual.html#drd-manual.effective-use">8.2.12. Hints and Tips for Effective Use of DRD</a></span></dt>
+<dt><span class="sect2"><a href="drd-manual.html#drd-manual.C++11">8.2.6. Debugging C++11 Programs</a></span></dt>
+<dt><span class="sect2"><a href="drd-manual.html#drd-manual.gnome">8.2.7. Debugging GNOME Programs</a></span></dt>
+<dt><span class="sect2"><a href="drd-manual.html#drd-manual.boost.thread">8.2.8. Debugging Boost.Thread Programs</a></span></dt>
+<dt><span class="sect2"><a href="drd-manual.html#drd-manual.openmp">8.2.9. Debugging OpenMP Programs</a></span></dt>
+<dt><span class="sect2"><a href="drd-manual.html#drd-manual.cust-mem-alloc">8.2.10. DRD and Custom Memory Allocators</a></span></dt>
+<dt><span class="sect2"><a href="drd-manual.html#drd-manual.drd-versus-memcheck">8.2.11. DRD Versus Memcheck</a></span></dt>
+<dt><span class="sect2"><a href="drd-manual.html#drd-manual.resource-requirements">8.2.12. Resource Requirements</a></span></dt>
+<dt><span class="sect2"><a href="drd-manual.html#drd-manual.effective-use">8.2.13. Hints and Tips for Effective Use of DRD</a></span></dt>
 </dl></dd>
 <dt><span class="sect1"><a href="drd-manual.html#drd-manual.Pthreads">8.3. Using the POSIX Threads API Effectively</a></span></dt>
 <dd><dl>
@@ -360,28 +361,25 @@ behavior of the DRD tool itself:</p>
 <p>
         Whether to report races between accessing memory and freeing
         memory. Enabling this option may cause DRD to run slightly
-        slower. Notes:
-	</p>
+        slower. Notes:</p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem"><p>
-	      Don't enable this option when using custom memory allocators
-	      that use
-	      the <code class="computeroutput">VG_USERREQ__MALLOCLIKE_BLOCK</code>
-	      and <code class="computeroutput">VG_USERREQ__FREELIKE_BLOCK</code>
-	      because that would result in false positives.
-	    </p></li>
+	    Don't enable this option when using custom memory allocators
+	    that use
+	    the <code class="computeroutput">VG_USERREQ__MALLOCLIKE_BLOCK</code>
+	    and <code class="computeroutput">VG_USERREQ__FREELIKE_BLOCK</code>
+	    because that would result in false positives.
+	  </p></li>
 <li class="listitem"><p>Don't enable this option when using reference-counted
-	      objects because that will result in false positives, even when
-	      that code has been annotated properly with
-	      <code class="computeroutput">ANNOTATE_HAPPENS_BEFORE</code>
-	      and <code class="computeroutput">ANNOTATE_HAPPENS_AFTER</code>. See
-	      e.g.  the output of the following command for an example:
-	      <code class="computeroutput">valgrind --tool=drd --free-is-write=yes
-		drd/tests/annotate_smart_pointer</code>.
-	    </p></li>
+	    objects because that will result in false positives, even when
+	    that code has been annotated properly with
+	    <code class="computeroutput">ANNOTATE_HAPPENS_BEFORE</code>
+	    and <code class="computeroutput">ANNOTATE_HAPPENS_AFTER</code>. See
+	    e.g.  the output of the following command for an example:
+	    <code class="computeroutput">valgrind --tool=drd --free-is-write=yes
+	      drd/tests/annotate_smart_pointer</code>.
+	  </p></li>
 </ul></div>
-<p>
-      </p>
 </dd>
 <dt><span class="term">
       <code class="option">
@@ -1021,7 +1019,38 @@ before Valgrind's header files are available.
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="drd-manual.gnome"></a>8.2.6. Debugging GNOME Programs</h3></div></div></div>
+<a name="drd-manual.C++11"></a>8.2.6. Debugging C++11 Programs</h3></div></div></div>
+<p>If you want to use the C++11 class std::thread you will need to do the
+  following to annotate the std::shared_ptr&lt;&gt; objects used in the
+  implementation of that class:
+</p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+<p>Add the following code at the start of a common header or at the
+    start of each source file, before any C++ header files are included:</p>
+<pre class="programlisting">
+#include &lt;valgrind/drd.h&gt;
+#define _GLIBCXX_SYNCHRONIZATION_HAPPENS_BEFORE(addr) ANNOTATE_HAPPENS_BEFORE(addr)
+#define _GLIBCXX_SYNCHRONIZATION_HAPPENS_AFTER(addr)  ANNOTATE_HAPPENS_AFTER(addr)
+</pre>
+</li>
+<li class="listitem"><p>Download the gcc source code and from source file
+    libstdc++-v3/src/c++11/thread.cc copy the implementation of the
+    <code class="computeroutput">execute_native_thread_routine()</code>
+    and <code class="computeroutput">std::thread::_M_start_thread()</code>
+    functions into a source file that is linked with your application. Make
+    sure that also in this source file the
+    _GLIBCXX_SYNCHRONIZATION_HAPPENS_*() macros are defined properly.</p></li>
+</ul></div>
+<p>
+</p>
+<p>For more information, see also <span class="emphasis"><em>The
+GNU C++ Library Manual, Debugging Support</em></span>
+(<a class="ulink" href="http://gcc.gnu.org/onlinedocs/libstdc++/manual/debug.html" target="_top">http://gcc.gnu.org/onlinedocs/libstdc++/manual/debug.html</a>).</p>
+</div>
+<div class="sect2">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="drd-manual.gnome"></a>8.2.7. Debugging GNOME Programs</h3></div></div></div>
 <p>
 GNOME applications use the threading primitives provided by the
 <code class="computeroutput">glib</code> and
@@ -1045,7 +1074,7 @@ Reference Manual</a> for more information.
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="drd-manual.boost.thread"></a>8.2.7. Debugging Boost.Thread Programs</h3></div></div></div>
+<a name="drd-manual.boost.thread"></a>8.2.8. Debugging Boost.Thread Programs</h3></div></div></div>
 <p>
 The Boost.Thread library is the threading library included with the
 cross-platform Boost Libraries. This threading library is an early
@@ -1073,7 +1102,7 @@ More information about Boost.Thread can be found here:
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="drd-manual.openmp"></a>8.2.8. Debugging OpenMP Programs</h3></div></div></div>
+<a name="drd-manual.openmp"></a>8.2.9. Debugging OpenMP Programs</h3></div></div></div>
 <p>
 OpenMP stands for <span class="emphasis"><em>Open Multi-Processing</em></span>. The OpenMP
 standard consists of a set of compiler directives for C, C++ and Fortran
@@ -1161,7 +1190,7 @@ For more information about OpenMP, see also
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="drd-manual.cust-mem-alloc"></a>8.2.9. DRD and Custom Memory Allocators</h3></div></div></div>
+<a name="drd-manual.cust-mem-alloc"></a>8.2.10. DRD and Custom Memory Allocators</h3></div></div></div>
 <p>
 DRD tracks all memory allocation events that happen via the
 standard memory allocation and deallocation functions
@@ -1207,7 +1236,7 @@ manual</a>.
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="drd-manual.drd-versus-memcheck"></a>8.2.10. DRD Versus Memcheck</h3></div></div></div>
+<a name="drd-manual.drd-versus-memcheck"></a>8.2.11. DRD Versus Memcheck</h3></div></div></div>
 <p>
 It is essential for correct operation of DRD that there are no memory
 errors such as dangling pointers in the client program. Which means that
@@ -1225,7 +1254,7 @@ each tool until none of the two tools prints any more error messages.
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="drd-manual.resource-requirements"></a>8.2.11. Resource Requirements</h3></div></div></div>
+<a name="drd-manual.resource-requirements"></a>8.2.12. Resource Requirements</h3></div></div></div>
 <p>
 The requirements of DRD with regard to heap and stack memory and the
 effect on the execution time of client programs are as follows:
@@ -1255,7 +1284,7 @@ effect on the execution time of client programs are as follows:
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="drd-manual.effective-use"></a>8.2.12. Hints and Tips for Effective Use of DRD</h3></div></div></div>
+<a name="drd-manual.effective-use"></a>8.2.13. Hints and Tips for Effective Use of DRD</h3></div></div></div>
 <p>
 The following information may be helpful when using DRD:
 </p>

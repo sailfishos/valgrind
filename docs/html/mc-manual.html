@@ -34,7 +34,8 @@
 <dt><span class="sect2"><a href="mc-manual.html#mc-manual.rudefn">4.2.5. When a heap block is freed with an inappropriate deallocation
 function</a></span></dt>
 <dt><span class="sect2"><a href="mc-manual.html#mc-manual.overlap">4.2.6. Overlapping source and destination blocks</a></span></dt>
-<dt><span class="sect2"><a href="mc-manual.html#mc-manual.leaks">4.2.7. Memory leak detection</a></span></dt>
+<dt><span class="sect2"><a href="mc-manual.html#mc-manual.fishyvalue">4.2.7. Fishy argument values</a></span></dt>
+<dt><span class="sect2"><a href="mc-manual.html#mc-manual.leaks">4.2.8. Memory leak detection</a></span></dt>
 </dl></dd>
 <dt><span class="sect1"><a href="mc-manual.html#mc-manual.options">4.3. Memcheck Command-Line Options</a></span></dt>
 <dt><span class="sect1"><a href="mc-manual.html#mc-manual.suppfiles">4.4. Writing suppression files</a></span></dt>
@@ -82,6 +83,9 @@ problems that are common in C and C++ programs.</p>
     <code class="computeroutput">dst</code> pointers in
     <code class="computeroutput">memcpy</code> and related
     functions.</p></li>
+<li class="listitem"><p>Passing a fishy (presumably negative) value to the
+    <code class="computeroutput">size</code> parameter of a memory
+    allocation function.</p></li>
 <li class="listitem"><p>Memory leaks.</p></li>
 </ul></div>
 <p>Problems like these can be difficult to find by other means,
@@ -344,7 +348,43 @@ implementation.</p>
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
-<a name="mc-manual.leaks"></a>4.2.7. Memory leak detection</h3></div></div></div>
+<a name="mc-manual.fishyvalue"></a>4.2.7. Fishy argument values</h3></div></div></div>
+<p>All memory allocation functions take an argument specifying the
+size of the memory block that should be allocated. Clearly, the requested
+size should be a non-negative value and is typically not excessively large. 
+For instance, it is extremely unlikly that the size of an allocation
+request exceeds 2**63 bytes on a 64-bit machine. It is much more likely that
+such a value is the result of an erroneous size calculation and is in effect
+a negative value (that just happens to appear excessively large because
+the bit pattern is interpreted as an unsigned integer).
+Such a value is called a "fishy value".
+
+The <code class="varname">size</code> argument of the following allocation functions
+is checked for being fishy:
+<code class="function">malloc</code>,
+<code class="function">calloc</code>,
+<code class="function">realloc</code>,
+<code class="function">memalign</code>,
+<code class="function">new</code>,
+<code class="function">new []</code>. 
+<code class="function">__builtin_new</code>,
+<code class="function">__builtin_vec_new</code>,
+For <code class="function">calloc</code> both arguments are being checked.
+</p>
+<p>For example:</p>
+<pre class="programlisting">
+==32233== Argument 'size' of function malloc has a fishy (possibly negative) value: -3
+==32233==    at 0x4C2CFA7: malloc (vg_replace_malloc.c:298)
+==32233==    by 0x400555: foo (fishy.c:15)
+==32233==    by 0x400583: main (fishy.c:23)
+</pre>
+<p>In earlier Valgrind versions those values were being referred to
+as "silly arguments" and no back-trace was included.
+</p>
+</div>
+<div class="sect2">
+<div class="titlepage"><div><div><h3 class="title">
+<a name="mc-manual.leaks"></a>4.2.8. Memory leak detection</h3></div></div></div>
 <p>Memcheck keeps track of all heap blocks issued in response to
 calls to
 <code class="function">malloc</code>/<code class="function">new</code> et al.
@@ -368,6 +408,15 @@ several ways we know of that an interior-pointer can occur:</p>
     information.</p></li>
 <li class="listitem"><p>It might be a random junk value in memory, entirely unrelated, just
     a coincidence.</p></li>
+<li class="listitem"><p>It might be a pointer to the inner char array of a C++
+    <code class="computeroutput">std::string</code>.  For example, some
+    compilers add 3 words at the beginning of the std::string to
+    store the length, the capacity and a reference count before the
+    memory containing the array of characters. They return a pointer
+    just after these 3 words, pointing at the char array.</p></li>
+<li class="listitem"><p>Some code might allocate a block of memory, and use the first 8
+    bytes to store (block size - 8) as a 64bit number.
+    <code class="computeroutput">sqlite3MemMalloc</code> does this.</p></li>
 <li class="listitem"><p>It might be a pointer to an array of C++ objects (which possess
     destructors) allocated with <code class="computeroutput">new[]</code>.  In
     this case, some compilers store a "magic cookie" containing the array
@@ -375,20 +424,15 @@ several ways we know of that an interior-pointer can occur:</p>
     past that magic cookie, i.e. an interior-pointer.
     See <a class="ulink" href="http://theory.uwinnipeg.ca/gnu/gcc/gxxint_14.html" target="_top">this
     page</a> for more information.</p></li>
-<li class="listitem"><p>It might be a pointer to the inner char array of a C++
-    <code class="computeroutput">std::string</code>.  For example, some
-    compilers add 3 words at the beginning of the std::string to
-    store the length, the capacity and a reference count before the
-    memory containing the array of characters. They return a pointer
-    just after these 3 words, pointing at the char array.</p></li>
 <li class="listitem"><p>It might be a pointer to an inner part of a C++ object using
     multiple inheritance. </p></li>
 </ul></div>
 <p>You can optionally activate heuristics to use during the leak
 search to detect the interior pointers corresponding to
-the <code class="computeroutput">newarray</code>,
-<code class="computeroutput">stdstring</code> and
-<code class="computeroutput">multipleinheritance</code> cases. If the
+the <code class="computeroutput">stdstring</code>,
+<code class="computeroutput">length64</code>,
+<code class="computeroutput">newarray</code>
+and <code class="computeroutput">multipleinheritance</code> cases. If the
 heuristic detects that an interior pointer corresponds to such a case,
 the block will be considered as reachable by the interior
 pointer. In other words, the interior pointer will be treated
@@ -472,8 +516,8 @@ LEAK SUMMARY:
 </pre>
 <p>If heuristics have been used to consider some blocks as
 reachable, the leak summary details the heuristically reachable subset
-of 'still reachable:' per heuristic. In the below example, of the 79
-bytes still reachable, 71 bytes (56+7+8) have been considered
+of 'still reachable:' per heuristic. In the below example, of the 95
+bytes still reachable, 87 bytes (56+7+8+16) have been considered
 heuristically reachable.
 </p>
 <pre class="programlisting">
@@ -481,9 +525,10 @@ LEAK SUMMARY:
    definitely lost: 4 bytes in 1 blocks
    indirectly lost: 0 bytes in 0 blocks
      possibly lost: 0 bytes in 0 blocks
-   still reachable: 79 bytes in 5 blocks
+   still reachable: 95 bytes in 6 blocks
                       of which reachable via heuristic:
                         stdstring          : 56 bytes in 2 blocks
+                        length64           : 16 bytes in 1 blocks
                         newarray           : 7 bytes in 1 blocks
                         multipleinheritance: 8 bytes in 1 blocks
         suppressed: 0 bytes in 0 blocks
@@ -526,15 +571,10 @@ in one of the following ways:
 
 </p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
-<li class="listitem">a comma separated list of one or more of
-    <code class="option">definite indirect possible reachable</code>.
-  </li>
-<li class="listitem">
-<code class="option">all</code> to specify the complete set (all leak kinds).
-  </li>
-<li class="listitem">
-<code class="option">none</code> for the empty set.
-  </li>
+<li class="listitem"><p>a comma separated list of one or more of
+    <code class="option">definite indirect possible reachable</code>.</p></li>
+<li class="listitem"><p><code class="option">all</code> to specify the complete set (all leak kinds).</p></li>
+<li class="listitem"><p><code class="option">none</code> for the empty set.</p></li>
 </ul></div>
 <p>
 
@@ -618,24 +658,15 @@ is <code class="option">--errors-for-leak-kinds=definite,possible</code>
 </dt>
 <dd>
 <p>Specifies the leak kinds to show in a full leak search, in
-      one of the following ways:
-
-        </p>
+      one of the following ways: </p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
-<li class="listitem">a comma separated list of one or more of
-            <code class="option">definite indirect possible reachable</code>.
-          </li>
-<li class="listitem">
-<code class="option">all</code> to specify the complete set (all leak kinds).
+<li class="listitem"><p>a comma separated list of one or more of
+            <code class="option">definite indirect possible reachable</code>.</p></li>
+<li class="listitem"><p><code class="option">all</code> to specify the complete set (all leak kinds).
             It is equivalent to
-            <code class="option">--show-leak-kinds=definite,indirect,possible,reachable</code>.
-          </li>
-<li class="listitem">
-<code class="option">none</code> for the empty set.
-          </li>
+            <code class="option">--show-leak-kinds=definite,indirect,possible,reachable</code>.</p></li>
+<li class="listitem"><p><code class="option">none</code> for the empty set.</p></li>
 </ul></div>
-<p>
-      </p>
 </dd>
 <dt>
 <a name="opt.errors-for-leak-kinds"></a><span class="term">
@@ -653,32 +684,18 @@ is <code class="option">--errors-for-leak-kinds=definite,possible</code>
 </dt>
 <dd>
 <p>Specifies the set of leak check heuristics to be used
-        during 
-        leak searches.  The heuristics control which interior pointers
+        during leak searches.  The heuristics control which interior pointers
         to a block cause it to be considered as reachable.
-        The heuristic set is specified in one of the following ways:
-
-        </p>
+        The heuristic set is specified in one of the following ways:</p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
-<li class="listitem">a comma separated list of one or more of
-            <code class="option">stdstring newarray multipleinheritance</code>.
-          </li>
-<li class="listitem">
-<code class="option">all</code> to activate the complete set of
+<li class="listitem"><p>a comma separated list of one or more of
+            <code class="option">stdstring length64 newarray multipleinheritance</code>.</p></li>
+<li class="listitem"><p><code class="option">all</code> to activate the complete set of
             heuristics.
             It is equivalent to
-            <code class="option">--leak-check-heuristics=stdstring,newarray,multipleinheritance</code>.
-          </li>
-<li class="listitem">
-<code class="option">none</code> for the empty set.
-          </li>
+            <code class="option">--leak-check-heuristics=stdstring,length64,newarray,multipleinheritance</code>.</p></li>
+<li class="listitem"><p><code class="option">none</code> for the empty set.</p></li>
 </ul></div>
-<p>
-      </p>
-<p>Note that these heuristics are dependent on the layout of the objects
-      produced by the C++ compiler. They have been tested with some gcc versions
-      (e.g. 4.4 and 4.7). They might not work properly with other C++ compilers.
-      </p>
 </dd>
 <dt>
 <a name="opt.show-reachable"></a><span class="term">
@@ -689,25 +706,21 @@ is <code class="option">--errors-for-leak-kinds=definite,possible</code>
 </dt>
 <dd>
 <p>These options provide an alternative way to specify the leak kinds to show:
-        </p>
-<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
-<li class="listitem">
-<code class="option">--show-reachable=no --show-possibly-lost=yes</code> is equivalent to
-            <code class="option">--show-leak-kinds=definite,possible</code>.
-          </li>
-<li class="listitem">
-<code class="option">--show-reachable=no --show-possibly-lost=no</code> is equivalent to
-            <code class="option">--show-leak-kinds=definite</code>.
-          </li>
-<li class="listitem">
-<code class="option">--show-reachable=yes</code> is equivalent to
-            <code class="option">--show-leak-kinds=all</code>.
-            Note that  <code class="option">--show-possibly-lost=no</code> has no effect
-            if <code class="option">--show-reachable=yes</code> is specified.
-          </li>
-</ul></div>
-<p>
       </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem"><p>
+            <code class="option">--show-reachable=no --show-possibly-lost=yes</code> is equivalent to
+            <code class="option">--show-leak-kinds=definite,possible</code>.
+	  </p></li>
+<li class="listitem"><p>
+            <code class="option">--show-reachable=no --show-possibly-lost=no</code> is equivalent to
+            <code class="option">--show-leak-kinds=definite</code>.
+	  </p></li>
+<li class="listitem"><p>
+            <code class="option">--show-reachable=yes</code> is equivalent to
+            <code class="option">--show-leak-kinds=all</code>.
+	  </p></li>
+</ul></div>
 </dd>
 <dt>
 <a name="opt.undef-value-errors"></a><span class="term">
@@ -906,6 +919,40 @@ is <code class="option">--errors-for-leak-kinds=definite,possible</code>
       conversions.  This is in violation of the 32-bit PowerPC ELF
       specification, which makes no provision for locations below the
       stack pointer to be accessible.</p>
+</dd>
+<dt>
+<a name="opt.show-mismatched-frees"></a><span class="term">
+      <code class="option">--show-mismatched-frees=&lt;yes|no&gt; [default: yes] </code>
+    </span>
+</dt>
+<dd>
+<p>When enabled, Memcheck checks that heap blocks are
+      deallocated using a function that matches the allocating
+      function.  That is, it expects <code class="varname">free</code> to be
+      used to deallocate blocks allocated
+      by <code class="varname">malloc</code>, <code class="varname">delete</code> for
+      blocks allocated by <code class="varname">new</code>,
+      and <code class="varname">delete[]</code> for blocks allocated
+      by <code class="varname">new[]</code>.  If a mismatch is detected, an
+      error is reported.  This is in general important because in some
+      environments, freeing with a non-matching function can cause
+      crashes.</p>
+<p>There is however a scenario where such mismatches cannot
+      be avoided.  That is when the user provides implementations of
+      <code class="varname">new</code>/<code class="varname">new[]</code> that
+      call <code class="varname">malloc</code> and
+      of <code class="varname">delete</code>/<code class="varname">delete[]</code> that
+      call <code class="varname">free</code>, and these functions are
+      asymmetrically inlined.  For example, imagine
+      that <code class="varname">delete[]</code> is inlined
+      but <code class="varname">new[]</code> is not.  The result is that
+      Memcheck "sees" all <code class="varname">delete[]</code> calls as direct
+      calls to <code class="varname">free</code>, even when the program source
+      contains no mismatched calls.</p>
+<p>This causes a lot of confusing and irrelevant error
+      reports.  <code class="varname">--show-mismatched-frees=no</code> disables
+      these checks.  It is not generally advisable to disable them,
+      though, because you may miss real errors as a result.</p>
 </dd>
 <dt>
 <a name="opt.ignore-ranges"></a><span class="term">
@@ -1639,7 +1686,8 @@ arguments.</p>
     <code class="varname">VALGRIND_MAKE_MEM_DEFINED</code>.
     These mark address ranges as completely inaccessible,
     accessible but containing undefined data, and accessible and
-    containing defined data, respectively.</p></li>
+    containing defined data, respectively. They return -1, when
+    run on Valgrind and 0 otherwise.</p></li>
 <li class="listitem"><p><code class="varname">VALGRIND_MAKE_MEM_DEFINED_IF_ADDRESSABLE</code>.
     This is just like <code class="varname">VALGRIND_MAKE_MEM_DEFINED</code> but only
     affects those bytes that are already addressable.</p></li>
