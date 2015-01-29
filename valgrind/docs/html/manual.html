@@ -22,10 +22,10 @@
 <div>
 <div><h1 class="title">
 <a name="manual"></a>Valgrind User Manual</h1></div>
-<div><p class="releaseinfo">Release 3.9.0 31 October 2013</p></div>
-<div><p class="copyright">Copyright © 2000-2013 <a class="ulink" href="http://www.valgrind.org/info/developers.html" target="_top">Valgrind Developers</a></p></div>
+<div><p class="releaseinfo">Release 3.10.0 10 September 2014</p></div>
+<div><p class="copyright">Copyright © 2000-2014 <a class="ulink" href="http://www.valgrind.org/info/developers.html" target="_top">Valgrind Developers</a></p></div>
 <div><div class="legalnotice">
-<a name="idp10563360"></a><p>Email: <a class="ulink" href="mailto:valgrind@valgrind.org" target="_top">valgrind@valgrind.org</a></p>
+<a name="idp15916768"></a><p>Email: <a class="ulink" href="mailto:valgrind@valgrind.org" target="_top">valgrind@valgrind.org</a></p>
 </div></div>
 </div>
 <hr>
@@ -104,7 +104,8 @@
 <dt><span class="sect2"><a href="mc-manual.html#mc-manual.rudefn">4.2.5. When a heap block is freed with an inappropriate deallocation
 function</a></span></dt>
 <dt><span class="sect2"><a href="mc-manual.html#mc-manual.overlap">4.2.6. Overlapping source and destination blocks</a></span></dt>
-<dt><span class="sect2"><a href="mc-manual.html#mc-manual.leaks">4.2.7. Memory leak detection</a></span></dt>
+<dt><span class="sect2"><a href="mc-manual.html#mc-manual.fishyvalue">4.2.7. Fishy argument values</a></span></dt>
+<dt><span class="sect2"><a href="mc-manual.html#mc-manual.leaks">4.2.8. Memory leak detection</a></span></dt>
 </dl></dd>
 <dt><span class="sect1"><a href="mc-manual.html#mc-manual.options">4.3. Memcheck Command-Line Options</a></span></dt>
 <dt><span class="sect1"><a href="mc-manual.html#mc-manual.suppfiles">4.4. Writing suppression files</a></span></dt>
@@ -205,8 +206,9 @@ function</a></span></dt>
 </dl></dd>
 <dt><span class="sect1"><a href="hg-manual.html#hg-manual.effective-use">7.5. Hints and Tips for Effective Use of Helgrind</a></span></dt>
 <dt><span class="sect1"><a href="hg-manual.html#hg-manual.options">7.6. Helgrind Command-line Options</a></span></dt>
-<dt><span class="sect1"><a href="hg-manual.html#hg-manual.client-requests">7.7. Helgrind Client Requests</a></span></dt>
-<dt><span class="sect1"><a href="hg-manual.html#hg-manual.todolist">7.8. A To-Do List for Helgrind</a></span></dt>
+<dt><span class="sect1"><a href="hg-manual.html#hg-manual.monitor-commands">7.7. Helgrind Monitor Commands</a></span></dt>
+<dt><span class="sect1"><a href="hg-manual.html#hg-manual.client-requests">7.8. Helgrind Client Requests</a></span></dt>
+<dt><span class="sect1"><a href="hg-manual.html#hg-manual.todolist">7.9. A To-Do List for Helgrind</a></span></dt>
 </dl></dd>
 <dt><span class="chapter"><a href="drd-manual.html">8. DRD: a thread error detector</a></span></dt>
 <dd><dl>
@@ -224,13 +226,14 @@ function</a></span></dt>
 <dt><span class="sect2"><a href="drd-manual.html#drd-manual.lock-contention">8.2.3. Detected Errors: Lock Contention</a></span></dt>
 <dt><span class="sect2"><a href="drd-manual.html#drd-manual.api-checks">8.2.4. Detected Errors: Misuse of the POSIX threads API</a></span></dt>
 <dt><span class="sect2"><a href="drd-manual.html#drd-manual.clientreqs">8.2.5. Client Requests</a></span></dt>
-<dt><span class="sect2"><a href="drd-manual.html#drd-manual.gnome">8.2.6. Debugging GNOME Programs</a></span></dt>
-<dt><span class="sect2"><a href="drd-manual.html#drd-manual.boost.thread">8.2.7. Debugging Boost.Thread Programs</a></span></dt>
-<dt><span class="sect2"><a href="drd-manual.html#drd-manual.openmp">8.2.8. Debugging OpenMP Programs</a></span></dt>
-<dt><span class="sect2"><a href="drd-manual.html#drd-manual.cust-mem-alloc">8.2.9. DRD and Custom Memory Allocators</a></span></dt>
-<dt><span class="sect2"><a href="drd-manual.html#drd-manual.drd-versus-memcheck">8.2.10. DRD Versus Memcheck</a></span></dt>
-<dt><span class="sect2"><a href="drd-manual.html#drd-manual.resource-requirements">8.2.11. Resource Requirements</a></span></dt>
-<dt><span class="sect2"><a href="drd-manual.html#drd-manual.effective-use">8.2.12. Hints and Tips for Effective Use of DRD</a></span></dt>
+<dt><span class="sect2"><a href="drd-manual.html#drd-manual.C++11">8.2.6. Debugging C++11 Programs</a></span></dt>
+<dt><span class="sect2"><a href="drd-manual.html#drd-manual.gnome">8.2.7. Debugging GNOME Programs</a></span></dt>
+<dt><span class="sect2"><a href="drd-manual.html#drd-manual.boost.thread">8.2.8. Debugging Boost.Thread Programs</a></span></dt>
+<dt><span class="sect2"><a href="drd-manual.html#drd-manual.openmp">8.2.9. Debugging OpenMP Programs</a></span></dt>
+<dt><span class="sect2"><a href="drd-manual.html#drd-manual.cust-mem-alloc">8.2.10. DRD and Custom Memory Allocators</a></span></dt>
+<dt><span class="sect2"><a href="drd-manual.html#drd-manual.drd-versus-memcheck">8.2.11. DRD Versus Memcheck</a></span></dt>
+<dt><span class="sect2"><a href="drd-manual.html#drd-manual.resource-requirements">8.2.12. Resource Requirements</a></span></dt>
+<dt><span class="sect2"><a href="drd-manual.html#drd-manual.effective-use">8.2.13. Hints and Tips for Effective Use of DRD</a></span></dt>
 </dl></dd>
 <dt><span class="sect1"><a href="drd-manual.html#drd-manual.Pthreads">8.3. Using the POSIX Threads API Effectively</a></span></dt>
 <dd><dl>
@@ -267,9 +270,9 @@ function</a></span></dt>
 <dt><span class="sect1"><a href="dh-manual.html#dh-manual.overview">10.1. Overview</a></span></dt>
 <dt><span class="sect1"><a href="dh-manual.html#dh-manual.understanding">10.2. Understanding DHAT's output</a></span></dt>
 <dd><dl>
-<dt><span class="sect2"><a href="dh-manual.html#idp16800480">10.2.1. Interpreting the max-live, tot-alloc and deaths fields</a></span></dt>
-<dt><span class="sect2"><a href="dh-manual.html#idp14355664">10.2.2. Interpreting the acc-ratios fields</a></span></dt>
-<dt><span class="sect2"><a href="dh-manual.html#idp14215648">10.2.3. Interpreting "Aggregated access counts by offset" data</a></span></dt>
+<dt><span class="sect2"><a href="dh-manual.html#idp17316960">10.2.1. Interpreting the max-live, tot-alloc and deaths fields</a></span></dt>
+<dt><span class="sect2"><a href="dh-manual.html#idp10076768">10.2.2. Interpreting the acc-ratios fields</a></span></dt>
+<dt><span class="sect2"><a href="dh-manual.html#idp12867584">10.2.3. Interpreting "Aggregated access counts by offset" data</a></span></dt>
 </dl></dd>
 <dt><span class="sect1"><a href="dh-manual.html#dh-manual.options">10.3. DHAT Command-line Options</a></span></dt>
 </dl></dd>

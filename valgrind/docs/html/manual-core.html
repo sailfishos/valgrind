@@ -130,7 +130,11 @@ OpenOffice.org with Memcheck is a bit easier when using this option.  You
 don't have to do this, but doing so helps Valgrind produce more accurate
 and less confusing error reports.  Chances are you're set up like this
 already, if you intended to debug your program with GNU GDB, or some
-other debugger.</p>
+other debugger. Alternatively, the Valgrind option 
+<code class="option">--read-inline-info=yes</code> instructs Valgrind to read
+the debug information describing inlining information. With this,
+function call chain will be properly shown, even when your application
+is compiled with inlining. </p>
 <p>If you are planning to use Memcheck: On rare
 occasions, compiler optimisations (at <code class="option">-O2</code>
 and above, and sometimes <code class="option">-O1</code>) have been
@@ -149,12 +153,9 @@ higher optimisation levels.  (Using <code class="option">-Wall</code>
 is also a good idea in general.)  All other tools (as far as we know) are
 unaffected by optimisation level, and for profiling tools like Cachegrind it
 is better to compile your program at its normal optimisation level.</p>
-<p>Valgrind understands both the older "stabs" debugging format, used
-by GCC versions prior to 3.1, and the newer DWARF2/3/4 formats
-used by GCC
-3.1 and later.  We continue to develop our debug-info readers,
-although the majority of effort will naturally enough go into the newer
-DWARF readers.</p>
+<p>Valgrind understands the DWARF2/3/4 formats used by GCC 3.1 and
+later.  The reader for "stabs" debugging format (used by GCC versions
+prior to 3.1) has been disabled in Valgrind 3.9.0.</p>
 <p>When you're ready to roll, run Valgrind as described above.
 Note that you should run the real
 (machine-code) executable here.  If your application is started by, for
@@ -367,10 +368,11 @@ run of <code class="computeroutput">valgrind -v --tool=memcheck ls -l</code>:</p
 --1610-- used_suppression:      2 dl-hack3-cond-1 /usr/lib/valgrind/default.supp:1234
 --1610-- used_suppression:      2 glibc-2.5.x-on-SUSE-10.2-(PPC)-2a /usr/lib/valgrind/default.supp:1234
 </pre>
-<p>Multiple suppressions files are allowed.  By default, Valgrind
-uses <code class="filename">$PREFIX/lib/valgrind/default.supp</code>.  You can
-ask to add suppressions from another file, by specifying
-<code class="option">--suppressions=/path/to/file.supp</code>.
+<p>Multiple suppressions files are allowed.  Valgrind loads suppression
+patterns from <code class="filename">$PREFIX/lib/valgrind/default.supp</code> unless
+<code class="option">--default-suppressions=no</code> has been specified.  You can
+ask to add suppressions from additional files by specifying
+<code class="option">--suppressions=/path/to/file.supp</code> one or more times.
 </p>
 <p>If you want to understand more about suppressions, look at an
 existing suppressions file whilst reading the following documentation.
@@ -518,7 +520,8 @@ in most cases.  We group the available options by rough categories.</p>
     </span>
 </dt>
 <dd><p>Run the Valgrind tool called <code class="varname">toolname</code>,
-      e.g. Memcheck, Cachegrind, etc.</p></dd>
+      e.g. memcheck, cachegrind, callgrind, helgrind, drd, massif,
+      lackey, none, exp-sgcheck, exp-bbv, exp-dhat, etc.</p></dd>
 </dl>
 </div>
 </div>
@@ -672,6 +675,39 @@ in most cases.  We group the available options by rough categories.</p>
       errors, such as Massif.
       </p></dd>
 <dt>
+<a name="opt.vgdb-stop-at"></a><span class="term">
+      <code class="option">--vgdb-stop-at=&lt;set&gt; [default: none] </code>
+    </span>
+</dt>
+<dd>
+<p> Use this option when the Valgrind gdbserver is enabled with
+      <code class="option">--vgdb=yes</code> or <code class="option">--vgdb=full</code>.
+      The Valgrind gdbserver will be invoked for each error after
+      <code class="option">--vgdb-error</code> have been reported.
+      You can additionally ask the Valgrind gdbserver to be invoked
+      for other events, specified in one of the following ways:  </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+<p>a comma separated list of one or more of
+            <code class="option">startup exit valgrindabexit</code>.</p>
+<p>The values <code class="option">startup</code> <code class="option">exit</code>
+          <code class="option">valgrindabexit</code> respectively indicate to
+          invoke gdbserver before your program is executed, after the
+          last instruction of your program, on Valgrind abnormal exit
+          (e.g. internal error, out of memory, ...).</p>
+<p>Note: <code class="option">startup</code> and
+          <code class="option">--vgdb-error=0</code> will both cause Valgrind
+          gdbserver to be invoked before your program is executed. The
+          <code class="option">--vgdb-error=0</code> will in addition cause your 
+          program to stop on all subsequent errors.</p>
+</li>
+<li class="listitem"><p><code class="option">all</code> to specify the complete set.
+            It is equivalent to
+            <code class="option">--vgdb-stop-at=startup,exit,valgrindabexit</code>.</p></li>
+<li class="listitem"><p><code class="option">none</code> for the empty set.</p></li>
+</ul></div>
+</dd>
+<dt>
 <a name="opt.track-fds"></a><span class="term">
       <code class="option">--track-fds=&lt;yes|no&gt; [default: no] </code>
     </span>
@@ -733,6 +769,12 @@ in most cases.  We group the available options by rough categories.</p>
 <p><code class="option">%%</code> is replaced with <code class="option">%</code>.</p>
 <p>If an <code class="option">%</code> is followed by any other character, it
       causes an abort.</p>
+<p>If the file name specifies a relative file name, it is put
+      in the program's initial working directory : this is the current
+      directory when the program started its execution after the fork
+      or after the exec.  If it specifies an absolute file name (ie.
+      starts with '/') then it is put there.
+      </p>
 </dd>
 <dt>
 <a name="opt.log-socket"></a><span class="term">
@@ -1488,6 +1530,53 @@ need to use them.</p>
       AMD64/Darwin that you need to use this option.</p>
 </dd>
 <dt>
+<a name="opt.read-inline-info"></a><span class="term">
+      <code class="option">--read-inline-info=&lt;yes|no&gt; [default: see below] </code>
+    </span>
+</dt>
+<dd>
+<p>When enabled, Valgrind will read information about inlined
+      function calls from DWARF3 debug info.  This slows Valgrind
+      startup and makes it use more memory (typically for each inlined
+      piece of code, 6 words and space for the function name), but it
+      results in more descriptive stacktraces.  For the 3.10.0
+      release, this functionality is enabled by default only for Linux
+      and Android targets and only for the tools Memcheck, Helgrind
+      and DRD.  Here is an example of some stacktraces with
+      <code class="option">--read-inline-info=no</code>:
+</p>
+<pre class="programlisting">
+==15380== Conditional jump or move depends on uninitialised value(s)
+==15380==    at 0x80484EA: main (inlinfo.c:6)
+==15380== 
+==15380== Conditional jump or move depends on uninitialised value(s)
+==15380==    at 0x8048550: fun_noninline (inlinfo.c:6)
+==15380==    by 0x804850E: main (inlinfo.c:34)
+==15380== 
+==15380== Conditional jump or move depends on uninitialised value(s)
+==15380==    at 0x8048520: main (inlinfo.c:6)
+</pre>
+<p>And here are the same errors with
+      <code class="option">--read-inline-info=yes</code>:</p>
+<pre class="programlisting">
+==15377== Conditional jump or move depends on uninitialised value(s)
+==15377==    at 0x80484EA: fun_d (inlinfo.c:6)
+==15377==    by 0x80484EA: fun_c (inlinfo.c:14)
+==15377==    by 0x80484EA: fun_b (inlinfo.c:20)
+==15377==    by 0x80484EA: fun_a (inlinfo.c:26)
+==15377==    by 0x80484EA: main (inlinfo.c:33)
+==15377== 
+==15377== Conditional jump or move depends on uninitialised value(s)
+==15377==    at 0x8048550: fun_d (inlinfo.c:6)
+==15377==    by 0x8048550: fun_noninline (inlinfo.c:41)
+==15377==    by 0x804850E: main (inlinfo.c:34)
+==15377== 
+==15377== Conditional jump or move depends on uninitialised value(s)
+==15377==    at 0x8048520: fun_d (inlinfo.c:6)
+==15377==    by 0x8048520: main (inlinfo.c:35)
+</pre>
+</dd>
+<dt>
 <a name="opt.read-var-info"></a><span class="term">
       <code class="option">--read-var-info=&lt;yes|no&gt; [default: no] </code>
     </span>
@@ -1495,34 +1584,37 @@ need to use them.</p>
 <dd>
 <p>When enabled, Valgrind will read information about
       variable types and locations from DWARF3 debug info.
-      This slows Valgrind down and makes it use more memory, but for
-      the tools that can take advantage of it (Memcheck, Helgrind,
-      DRD) it can result in more precise error messages.  For example,
+      This slows Valgrind startup significantly and makes it use significantly
+      more memory, but for the tools that can take advantage of it (Memcheck,
+      Helgrind, DRD) it can result in more precise error messages.  For example,
       here are some standard errors issued by Memcheck:</p>
 <pre class="programlisting">
-==15516== Uninitialised byte(s) found during client check request
-==15516==    at 0x400633: croak (varinfo1.c:28)
-==15516==    by 0x4006B2: main (varinfo1.c:55)
-==15516==  Address 0x60103b is 7 bytes inside data symbol "global_i2"
-==15516== 
-==15516== Uninitialised byte(s) found during client check request
-==15516==    at 0x400633: croak (varinfo1.c:28)
-==15516==    by 0x4006BC: main (varinfo1.c:56)
-==15516==  Address 0x7fefffefc is on thread 1's stack</pre>
+==15363== Uninitialised byte(s) found during client check request
+==15363==    at 0x80484A9: croak (varinfo1.c:28)
+==15363==    by 0x8048544: main (varinfo1.c:55)
+==15363==  Address 0x80497f7 is 7 bytes inside data symbol "global_i2"
+==15363== 
+==15363== Uninitialised byte(s) found during client check request
+==15363==    at 0x80484A9: croak (varinfo1.c:28)
+==15363==    by 0x8048550: main (varinfo1.c:56)
+==15363==  Address 0xbea0d0cc is on thread 1's stack
+==15363==  in frame #1, created by main (varinfo1.c:45)
+</pre>
 <p>And here are the same errors with
       <code class="option">--read-var-info=yes</code>:</p>
 <pre class="programlisting">
-==15522== Uninitialised byte(s) found during client check request
-==15522==    at 0x400633: croak (varinfo1.c:28)
-==15522==    by 0x4006B2: main (varinfo1.c:55)
-==15522==  Location 0x60103b is 0 bytes inside global_i2[7],
-==15522==  a global variable declared at varinfo1.c:41
-==15522== 
-==15522== Uninitialised byte(s) found during client check request
-==15522==    at 0x400633: croak (varinfo1.c:28)
-==15522==    by 0x4006BC: main (varinfo1.c:56)
-==15522==  Location 0x7fefffefc is 0 bytes inside local var "local"
-==15522==  declared at varinfo1.c:46, in frame #1 of thread 1</pre>
+==15370== Uninitialised byte(s) found during client check request
+==15370==    at 0x80484A9: croak (varinfo1.c:28)
+==15370==    by 0x8048544: main (varinfo1.c:55)
+==15370==  Location 0x80497f7 is 0 bytes inside global_i2[7],
+==15370==  a global variable declared at varinfo1.c:41
+==15370== 
+==15370== Uninitialised byte(s) found during client check request
+==15370==    at 0x80484A9: croak (varinfo1.c:28)
+==15370==    by 0x8048550: main (varinfo1.c:56)
+==15370==  Location 0xbeb4a0cc is 0 bytes inside local var "local"
+==15370==  declared at varinfo1.c:46, in frame #1 of thread 1
+</pre>
 </dd>
 <dt>
 <a name="opt.vgdb-poll"></a><span class="term">
@@ -1606,6 +1698,13 @@ need to use them.</p>
           when writing.  Without this, using some device drivers with a
           large number of strange ioctl commands becomes very
           tiresome.</p></li>
+<li class="listitem"><p><code class="option">fuse-compatible: </code> Enable special
+            handling for certain system calls that may block in a FUSE
+            file-system.  This may be necessary when running Valgrind
+            on a multi-threaded program that uses one thread to manage
+            a FUSE file-system and another thread to access that
+            file-system.
+          </p></li>
 <li class="listitem"><p><code class="option">enable-outer: </code> Enable some special
           magic needed when the program being run is itself
           Valgrind.</p></li>
@@ -1616,13 +1715,37 @@ need to use them.</p>
           regression tests in an outer/inner setup. Note that the
           prefix <code class="option">&gt;</code> will always be printed in
           front of the inner debug logging lines.</p></li>
-<li class="listitem"><p><code class="option">fuse-compatible: </code> Enable special
-            handling for certain system calls that may block in a FUSE
-            file-system.  This may be necessary when running Valgrind
-            on a multi-threaded program that uses one thread to manage
-            a FUSE file-system and another thread to access that
-            file-system.
-          </p></li>
+<li class="listitem">
+<p><code class="option">no-nptl-pthread-stackcache: </code>
+            This hint is only relevant when running Valgrind on Linux.</p>
+<p>The GNU glibc pthread library
+            (<code class="function">libpthread.so</code>), which is used by
+            pthread programs, maintains a cache of pthread stacks.
+            When a pthread terminates, the memory used for the pthread
+            stack and some thread local storage related data structure
+            are not always directly released.  This memory is kept in
+            a cache (up to a certain size), and is re-used if a new
+            thread is started.</p>
+<p>This cache causes the helgrind tool to report some
+            false positive race condition errors on this cached
+            memory, as helgrind does not understand the internal glibc
+            cache synchronisation primitives. So, when using helgrind,
+            disabling the cache helps to avoid false positive race
+            conditions, in particular when using thread local storage
+            variables (e.g. variables using the
+            <code class="function">__thread</code> qualifier).</p>
+<p>When using the memcheck tool, disabling the cache
+            ensures the memory used by glibc to handle __thread
+            variables is directly released when a thread
+            terminates.</p>
+<p>Note: Valgrind disables the cache using some internal
+            knowledge of the glibc stack cache implementation and by
+            examining the debug information of the pthread
+            library. This technique is thus somewhat fragile and might
+            not work for all glibc versions. This has been succesfully
+            tested with various glibc versions (e.g. 2.11, 2.16, 2.18)
+            on various platforms.</p>
+</li>
 </ul></div>
 </dd>
 <dt>
@@ -1638,9 +1761,7 @@ need to use them.</p>
       between fairness and performance. For more details about the
       Valgrind thread serialisation scheme and its impact on
       performance and thread scheduling, see
-      <a class="xref" href="manual-core.html#manual-core.pthreads_perf_sched" title="2.7.1. Scheduling and Multi-Thread Performance">Scheduling and Multi-Thread Performance</a>.
-
-      </p>
+      <a class="xref" href="manual-core.html#manual-core.pthreads_perf_sched" title="2.7.1. Scheduling and Multi-Thread Performance">Scheduling and Multi-Thread Performance</a>.</p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem">
 <p>The value <code class="option">--fair-sched=yes</code>
@@ -1664,8 +1785,6 @@ need to use them.</p>
           between threads ready to run, but which in general gives the
          highest performance.</p></li>
 </ul></div>
-<p>
-    </p>
 </dd>
 <dt>
 <a name="opt.kernel-variant"></a><span class="term">
@@ -1679,10 +1798,30 @@ need to use them.</p>
       nonstandard ioctls, for example.  Use with caution.  If you don't
       understand what this option does then you almost certainly don't
       need it.  Currently known variants are:</p>
-<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem"><p><code class="option">bproc: </code> Support the
-          <code class="function">sys_broc</code> system call on x86.  This is for
-          running on BProc, which is a minor variant of standard Linux which
-          is sometimes used for building clusters.</p></li></ul></div>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem"><p><code class="option">bproc</code>: support the
+            <code class="function">sys_broc</code> system call on x86.  This is for
+            running on BProc, which is a minor variant of standard Linux which
+            is sometimes used for building clusters.
+          </p></li>
+<li class="listitem"><p><code class="option">android-no-hw-tls</code>: some
+          versions of the Android emulator for ARM do not provide a
+          hardware TLS (thread-local state) register, and Valgrind
+          crashes at startup.  Use this variant to select software
+          support for TLS.
+          </p></li>
+<li class="listitem"><p><code class="option">android-gpu-sgx5xx</code>: use this to
+          support handling of proprietary ioctls for the PowerVR SGX
+          5XX series of GPUs on Android devices.  Failure to select
+          this does not cause stability problems, but may cause
+          Memcheck to report false errors after the program performs
+          GPU-specific ioctls.
+          </p></li>
+<li class="listitem"><p><code class="option">android-gpu-adreno3xx</code>: similarly, use
+          this to support handling of proprietary ioctls for the
+          Qualcomm Adreno 3XX series of GPUs on Android devices.
+          </p></li>
+</ul></div>
 </dd>
 <dt>
 <a name="opt.merge-recursive-frames"></a><span class="term">
@@ -1741,6 +1880,32 @@ need to use them.</p>
       option <code class="option">--stats=yes</code> to obtain precise
       information about the memory used by a sector and the allocation
       and recycling of sectors.</p></dd>
+<dt>
+<a name="opt.aspace-minaddr"></a><span class="term">
+      <code class="option">--aspace-minaddr=&lt;address&gt; [default: depends
+      on the platform] </code>
+    </span>
+</dt>
+<dd><p>To avoid potential conflicts with some system libraries,
+      Valgrind does not use the address space
+      below <code class="option">--aspace-minaddr</code> value, keeping it
+      reserved in case a library specifically requests memory in this
+      region.  So, some "pessimistic" value is guessed by Valgrind
+      depending on the platform. On linux, by default, Valgrind avoids
+      using the first 64MB even if typically there is no conflict in
+      this complete zone.  You can use the
+      option <code class="option">--aspace-minaddr</code> to have your memory
+      hungry application benefitting from more of this lower memory.
+      On the other hand, if you encounter a conflict, increasing
+      aspace-minaddr value might solve it. Conflicts will typically
+      manifest themselves with mmap failures in the low range of the
+      address space. The
+      provided <code class="computeroutput">address</code> must be page
+      aligned and must be equal or bigger to 0x1000 (4KB). To find the
+      default value on your platform, do something such as
+      <code class="computeroutput">valgrind -d -d date 2&gt;&amp;1 | grep -i minaddr</code>. Values lower than 0x10000 (64KB) are known to create problems
+      on some distributions.
+      </p></dd>
 <dt>
 <a name="opt.show-emwarns"></a><span class="term">
       <code class="option">--show-emwarns=&lt;yes|no&gt; [default: no] </code>
