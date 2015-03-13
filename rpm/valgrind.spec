@@ -57,6 +57,9 @@ Requires: valgrind = %{version}-%{release}
 RPM_OPT_FLAGS="`echo " %{optflags} " | sed 's/ -m\(64\|3[21]\) / /g;s/ -fexceptions / /g;s/^ //;s/ $//' | \
     sed s/-Wp,-D_FORTIFY_SOURCE=2// | sed s/-D_FORTIFY_SOURCE=2//`"
 
+# valgrind's instruction compiler does not work on thumb hosts
+RPM_OPT_FLAGS="`echo " $RPM_OPT_FLAGS " | sed 's/ -mthumb / /g'`"
+
 export CFLAGS="$RPM_OPT_FLAGS"
 export CXXFLAGS="$RPM_OPT_FLAGS"
 autoreconf -fi
