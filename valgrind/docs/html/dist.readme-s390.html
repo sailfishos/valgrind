@@ -25,8 +25,8 @@
 Requirements<br>
 ------------<br>
 - You need GCC 3.4 or later to compile the s390 port.<br>
-- To run valgrind a z10 machine or any later model is needed.<br>
-  Older machine models down to and including z900 may work but have<br>
+- To run valgrind a z10 machine or any later model is recommended.<br>
+  Older machine models down to and including z990 may work but have<br>
   not been tested extensively.<br>
 <br>
 <br>
@@ -34,6 +34,8 @@ Limitations<br>
 -----------<br>
 - 31-bit client programs are not supported.<br>
 - Hexadecimal floating point is not supported.<br>
+- Transactional memory is not supported.<br>
+- Instructions operating on vector registers are not supported.<br>
 - memcheck, cachegrind, drd, helgrind, massif, lackey, and none are<br>
   supported. <br>
 - On machine models predating z10, cachegrind will assume a z10 cache<br>
@@ -49,8 +51,8 @@ Hardware facilities<br>
 -------------------<br>
 Valgrind does not require that the host machine has the same hardware<br>
 facilities as the machine for which the client program was compiled.<br>
-This is convenient. The JIT compiler will translate the client instructions<br>
-according to the facilities available on the host.<br>
+This is convenient. If possible, the JIT compiler will translate the<br>
+client instructions according to the facilities available on the host.<br>
 This means, though, that probing for hardware facilities by issuing<br>
 instructions from that facility and observing whether SIGILL is thrown<br>
 may not work. As a consequence, programs that attempt to do so may<br>
@@ -68,9 +70,9 @@ Reading Material<br>
 (1) Linux for zSeries ELF ABI Supplement<br>
     http://refspecs.linuxfoundation.org/ELF/zSeries/index.html<br>
 (2) z/Architecture Principles of Operation<br>
-    http://publibfi.boulder.ibm.com/epubs/pdf/dz9zr009.pdf<br>
+    http://publibfi.boulder.ibm.com/epubs/pdf/dz9zr010.pdf<br>
 (3) z/Architecture Reference Summary<br>
-    http://publibfi.boulder.ibm.com/epubs/pdf/dz9zs007.pdf<br>
+    http://publibfi.boulder.ibm.com/epubs/pdf/dz9zs008.pdf<br>
 <br>
     </p></div>
 </div>

@@ -1042,6 +1042,45 @@ unlock(mx)                             unlock(mx)
         performance, but comes at the cost of missing races on
         stack-allocated data.
       </p></dd>
+<dt>
+<a name="opt.ignore-thread-creation"></a><span class="term">
+      <code class="option">--ignore-thread-creation=&lt;yes|no&gt;
+      [default: no]</code>
+    </span>
+</dt>
+<dd>
+<p>
+        Controls whether all activities during thread creation should be
+        ignored. By default enabled only on Solaris.
+        Solaris provides higher throughput, parallelism and scalability than
+        other operating systems, at the cost of more fine-grained locking
+        activity. This means for example that when a thread is created under
+        glibc, just one big lock is used for all thread setup. Solaris libc
+        uses several fine-grained locks and the creator thread resumes its
+        activities as soon as possible, leaving for example stack and TLS setup
+        sequence to the created thread.
+        This situation confuses Helgrind as it assumes there is some false
+        ordering in place between creator and created thread; and therefore many
+        types of race conditions in the application would not be reported.
+        To prevent such false ordering, this command line option is set to
+        <code class="computeroutput">yes</code> by default on Solaris.
+        All activity (loads, stores, client requests) is therefore ignored
+        during:</p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem"><p>
+            pthread_create() call in the creator thread
+          </p></li>
+<li class="listitem"><p>
+            thread creation phase (stack and TLS setup) in the created thread
+          </p></li>
+</ul></div>
+<p>
+         Also new memory allocated during thread creation is untracked,
+         that is race reporting is suppressed there. DRD does the same thing
+         implicitly. This is necessary because Solaris libc caches many objects
+         and reuses them for different threads and that confuses
+         Helgrind.</p>
+</dd>
 </dl>
 </div>
 </div>
@@ -1051,21 +1090,26 @@ unlock(mx)                             unlock(mx)
 <p>The Helgrind tool provides monitor commands handled by Valgrind's
 built-in gdbserver (see <a class="xref" href="manual-core-adv.html#manual-core-adv.gdbserver-commandhandling" title="3.2.5. Monitor command handling by the Valgrind gdbserver">Monitor command handling by the Valgrind gdbserver</a>).
 </p>
-<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; "><li class="listitem">
-<p><code class="varname">info locks</code> shows the list of locks and their
-    status. </p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem">
+<p><code class="varname">info locks [lock_addr]</code> shows the list of locks
+    and their status. If  <code class="varname">lock_addr</code> is given, only shows
+    the lock located at this address. </p>
 <p>
-    In the following example, helgrind knows about one lock.
-    This lock is located at the guest address <code class="varname">ga 0x8049a20</code>.
-    The lock kind is <code class="varname">rdwr</code> indicating a reader-writer lock.
-    Other possible lock kinds are <code class="varname">nonRec</code> (simple mutex, non recursive)
+    In the following example, helgrind knows about one lock.  This
+    lock is located at the guest address <code class="varname">ga
+    0x8049a20</code>.  The lock kind is <code class="varname">rdwr</code>
+    indicating a reader-writer lock.  Other possible lock kinds
+    are <code class="varname">nonRec</code> (simple mutex, non recursive)
     and <code class="varname">mbRec</code> (simple mutex, possibly recursive).
-    The lock kind is then followed by the list of threads helding the lock.
-    In the below example, <code class="varname">R1:thread #6 tid 3</code> indicates that the
-    helgrind thread #6 has acquired (once, as the counter following the letter R is one)
-    the lock in read mode. The helgrind thread nr is incremented for each started thread.
-    The presence of 'tid 3' indicates that the thread #6 is has not exited yet and is the
-    valgrind tid 3. If a thread has terminated, then this is indicated with 'tid (exited)'.
+    The lock kind is then followed by the list of threads helding the
+    lock.  In the below example, <code class="varname">R1:thread #6 tid 3</code>
+    indicates that the helgrind thread #6 has acquired (once, as the
+    counter following the letter R is one) the lock in read mode. The
+    helgrind thread nr is incremented for each started thread.  The
+    presence of 'tid 3' indicates that the thread #6 is has not exited
+    yet and is the valgrind tid 3. If a thread has terminated, then
+    this is indicated with 'tid (exited)'.
     </p>
 <pre class="programlisting">
 (gdb) monitor info locks
@@ -1075,9 +1119,9 @@ Lock ga 0x8049a20 {
 }
 (gdb) 
 </pre>
-<p> If you give the option <code class="varname">--read-var-info=yes</code>, then more
-    information will be provided about the lock location, such as the global variable
-    or the heap block that contains the lock:
+<p> If you give the option <code class="varname">--read-var-info=yes</code>,
+    then more information will be provided about the lock location, such as
+    the global variable or the heap block that contains the lock:
     </p>
 <pre class="programlisting">
 Lock ga 0x8049a20 {
@@ -1087,7 +1131,44 @@ Lock ga 0x8049a20 {
  { R1:thread #3 tid 3 }
 }
 </pre>
-</li></ul></div>
+</li>
+<li class="listitem">
+<p><code class="varname">accesshistory  &lt;addr&gt; [&lt;len&gt;]</code>
+    shows the  access history recorded for &lt;len&gt; (default 1) bytes
+    starting at &lt;addr&gt;. For each recorded access that overlaps
+    with the given range, <code class="varname">accesshistory</code> shows the operation
+    type (read or write), the address and size read or written, the helgrind
+    thread nr/valgrind tid number that did the operation and the locks held
+    by the thread at the time of the operation.
+    The oldest access is shown first, the most recent access is shown last.
+    </p>
+<p>
+    In the following example, we see first a recorded write of 4 bytes by
+    thread #7 that has modified the given 2 bytes range.
+    The second recorded write is the most recent recorded write : thread #9
+    modified the same 2 bytes as part of a 4 bytes write operation.
+    The list of locks held by each thread at the time of the write operation
+    are also shown.
+    </p>
+<pre class="programlisting">
+(gdb) monitor accesshistory 0x8049D8A 2
+write of size 4 at 0x8049D88 by thread #7 tid 3
+==6319== Locks held: 2, at address 0x8049D8C (and 1 that can't be shown)
+==6319==    at 0x804865F: child_fn1 (locked_vs_unlocked2.c:29)
+==6319==    by 0x400AE61: mythread_wrapper (hg_intercepts.c:234)
+==6319==    by 0x39B924: start_thread (pthread_create.c:297)
+==6319==    by 0x2F107D: clone (clone.S:130)
+
+write of size 4 at 0x8049D88 by thread #9 tid 2
+==6319== Locks held: 2, at addresses 0x8049DA4 0x8049DD4
+==6319==    at 0x804877B: child_fn2 (locked_vs_unlocked2.c:45)
+==6319==    by 0x400AE61: mythread_wrapper (hg_intercepts.c:234)
+==6319==    by 0x39B924: start_thread (pthread_create.c:297)
+==6319==    by 0x2F107D: clone (clone.S:130)
+
+</pre>
+</li>
+</ul></div>
 </div>
 <div class="sect1">
 <div class="titlepage"><div><div><h2 class="title" style="clear: both">

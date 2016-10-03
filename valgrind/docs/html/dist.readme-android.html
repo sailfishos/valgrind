@@ -26,8 +26,8 @@ How to cross-compile and run on Android.  Please read to the end,<br>
 since there are important details further down regarding crash<br>
 avoidance and GPU support.<br>
 <br>
-These notes were last updated on 3 Sept 2014, for Valgrind SVN<br>
-revision 14439/2941.<br>
+These notes were last updated on 4 Nov 2014, for Valgrind SVN<br>
+revision 14689/2987.<br>
 <br>
 These instructions are known to work, or have worked at some time in<br>
 the past, for:<br>
@@ -48,29 +48,37 @@ mips32:<br>
   Android 4.3   running on android mips emulator.<br>
   Android 4.0.4 running on BROADCOM bcm7425<br>
 <br>
+arm64:<br>
+  Android 4.5 (?) running on ARM Juno<br>
+<br>
 On android-arm, GDBserver might insert breaks at wrong addresses.<br>
 Feedback on this welcome.<br>
 <br>
 Other configurations and toolchains might work, but haven't been tested.<br>
 Feedback is welcome.<br>
 <br>
+Toolchain:<br>
 <br>
-You need the android-ndk-r6 native development kit.  r6b and r7<br>
-give a non-completely-working build; see<br>
-http://code.google.com/p/android/issues/detail?id=23203<br>
-For the android emulator, the versions needed and how to<br>
-install them are described in README.android_emulator.<br>
+  For arm32, x86 and mips32 you need the android-ndk-r6 native<br>
+    development kit.  r6b and r7 give a non-completely-working build;<br>
+    see http://code.google.com/p/android/issues/detail?id=23203<br>
+    For the android emulator, the versions needed and how to install<br>
+    them are described in README.android_emulator.<br>
 <br>
-You can get android-ndk-r6 from<br>
-http://dl.google.com/android/ndk/android-ndk-r6-linux-x86.tar.bz2<br>
-Install it somewhere.  Doesn't matter where.  Then:<br>
+    You can get android-ndk-r6 from<br>
+    http://dl.google.com/android/ndk/android-ndk-r6-linux-x86.tar.bz2<br>
+<br>
+  For arm64 (aarch64) you need the android-ndk-r10c NDK, from<br>
+    http://dl.google.com/android/ndk/android-ndk-r10c-linux-x86_64.bin<br>
+<br>
+Install the NDK somewhere.  Doesn't matter where.  Then:<br>
 <br>
 <br>
 # Modify this (obviously).  Note, this "export" command is only done<br>
 # so as to reduce the amount of typing required.  None of the commands<br>
 # below read it as part of their operation.<br>
 #<br>
-export NDKROOT=/path/to/android-ndk-r6<br>
+export NDKROOT=/path/to/android-ndk-r&lt;version&gt;<br>
 <br>
 <br>
 # Then cd to the root of your Valgrind source tree.<br>
@@ -98,6 +106,11 @@ export CC=$NDKROOT/toolchains/x86-4.4.3/prebuilt/linux-x86/bin/i686-android-linu
 export AR=$NDKROOT/toolchains/mipsel-linux-android-4.8/prebuilt/linux-x86_64/bin/mipsel-linux-android-ar<br>
 export LD=$NDKROOT/toolchains/mipsel-linux-android-4.8/prebuilt/linux-x86_64/bin/mipsel-linux-android-ld<br>
 export CC=$NDKROOT/toolchains/mipsel-linux-android-4.8/prebuilt/linux-x86_64/bin/mipsel-linux-android-gcc<br>
+<br>
+# For ARM64 (AArch64)<br>
+export AR=$NDKROOT/toolchains/aarch64-linux-android-4.9/prebuilt/linux-x86_64/bin/aarch64-linux-android-ar <br>
+export LD=$NDKROOT/toolchains/aarch64-linux-android-4.9/prebuilt/linux-x86_64/bin/aarch64-linux-android-ld<br>
+export CC=$NDKROOT/toolchains/aarch64-linux-android-4.9/prebuilt/linux-x86_64/bin/aarch64-linux-android-gcc<br>
 <br>
 <br>
 # Do configuration stuff.  Don't mess with the --prefix in the<br>
@@ -133,6 +146,13 @@ CPPFLAGS="--sysroot=$NDKROOT/platforms/android-18/arch-mips" \<br>
    --host=mipsel-linux-android --target=mipsel-linux-android \<br>
    --with-tmpdir=/sdcard<br>
 <br>
+# for ARM64 (AArch64)<br>
+CPPFLAGS="--sysroot=$NDKROOT/platforms/android-21/arch-arm64" \<br>
+   CFLAGS="--sysroot=$NDKROOT/platforms/android-21/arch-arm64" \<br>
+   ./configure --prefix=/data/local/Inst \<br>
+   --host=aarch64-unknown-linux --target=aarch64-unknown-linux \<br>
+   --with-tmpdir=/sdcard<br>
+<br>
 <br>
 # At the end of the configure run, a few lines of details<br>
 # are printed.  Make sure that you see these two lines:<br>
@@ -149,6 +169,10 @@ CPPFLAGS="--sysroot=$NDKROOT/platforms/android-18/arch-mips" \<br>
 #          Platform variant: android<br>
 #     Primary -DVGPV string: -DVGPV_mips32_linux_android=1<br>
 #<br>
+# For ARM64 (AArch64):<br>
+#          Platform variant: android<br>
+#     Primary -DVGPV string: -DVGPV_arm64_linux_android=1<br>
+#<br>
 # If you see anything else at this point, something is wrong, and<br>
 # either the build will fail, or will succeed but you'll get something<br>
 # which won't work.<br>
@@ -156,8 +180,8 @@ CPPFLAGS="--sysroot=$NDKROOT/platforms/android-18/arch-mips" \<br>
 <br>
 # Build, and park the install tree in `pwd`/Inst<br>
 #<br>
-make -j2<br>
-make -j2 install DESTDIR=`pwd`/Inst<br>
+make -j4<br>
+make -j4 install DESTDIR=`pwd`/Inst<br>
 <br>
 <br>
 # To get the install tree onto the device:<br>

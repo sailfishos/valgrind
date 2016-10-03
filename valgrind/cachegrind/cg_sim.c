@@ -7,7 +7,7 @@
    This file is part of Cachegrind, a Valgrind tool for cache
    profiling programs.
 
-   Copyright (C) 2002-2013 Nicholas Nethercote
+   Copyright (C) 2002-2015 Nicholas Nethercote
       njn@valgrind.org
 
    This program is free software; you can redistribute it and/or
@@ -42,31 +42,27 @@ typedef struct {
    Int          size;                   /* bytes */
    Int          assoc;
    Int          line_size;              /* bytes */
+   Int          sets;
    Int          sets_min_1;
    Int          line_size_bits;
    Int          tag_shift;
+   HChar        desc_line[128];         /* large enough */
    UWord*       tags;
-   HChar        desc_line[128];
-} cache_t2
-#ifdef __GNUC__
-__attribute__ ((aligned (8 * sizeof (Int))))
-#endif
-;
+} cache_t2;
 
 /* By this point, the size/assoc/line_size has been checked. */
 static void cachesim_initcache(cache_t config, cache_t2* c)
 {
    Int i;
-   Int sets;
 
    c->size      = config.size;
    c->assoc     = config.assoc;
    c->line_size = config.line_size;
 
-   sets           = (c->size / c->line_size) / c->assoc;
-   c->sets_min_1     = sets - 1;
+   c->sets           = (c->size / c->line_size) / c->assoc;
+   c->sets_min_1     = c->sets - 1;
    c->line_size_bits = VG_(log2)(c->line_size);
-   c->tag_shift      = c->line_size_bits + VG_(log2)(sets);
+   c->tag_shift      = c->line_size_bits + VG_(log2)(c->sets);
 
    if (c->assoc == 1) {
       VG_(sprintf)(c->desc_line, "%d B, %d B, direct-mapped", 
@@ -76,8 +72,11 @@ static void cachesim_initcache(cache_t config, cache_t2* c)
                                  c->size, c->line_size, c->assoc);
    }
 
-   c->tags = VG_(calloc)("cg.sim.ci.1",
-                         sizeof(UWord), sets * c->assoc);
+   c->tags = VG_(malloc)("cg.sim.ci.1",
+                         sizeof(UWord) * c->sets * c->assoc);
+
+   for (i = 0; i < c->sets * c->assoc; i++)
+      c->tags[i] = 0;
 }
 
 /* This attribute forces GCC to inline the function, getting rid of a
@@ -156,7 +155,7 @@ Bool cachesim_ref_is_miss(cache_t2* c, Addr a, UChar size)
       }
       return cachesim_setref_is_miss(c, set2, tag2);
    }
-   VG_(printf)("addr: %lx  size: %u  blocks: %ld %ld",
+   VG_(printf)("addr: %lx  size: %u  blocks: %lu %lu",
                a, size, block1, block2);
    VG_(tool_panic)("item straddles more than two cache sets");
    /* not reached */

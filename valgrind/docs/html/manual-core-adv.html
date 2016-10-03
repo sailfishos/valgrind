@@ -1273,6 +1273,11 @@ problems or bugs.</p>
     tool statistics. With this, Valgrind and tool statistics can
     be examined while running, even without option <code class="option">--stats=yes</code>.
     </p></li>
+<li class="listitem"><p><code class="varname">v.info unwind  &lt;addr&gt; [&lt;len&gt;]</code> shows
+    the CFI unwind debug info for the address range [addr, addr+len-1].
+    The default value of &lt;len&gt; is 1, giving the unwind information
+    for the instruction at &lt;addr&gt;.
+    </p></li>
 <li class="listitem"><p><code class="varname">v.set debuglog &lt;intvalue&gt;</code> sets the
     Valgrind debug log level to &lt;intvalue&gt;.  This allows to
     dynamically change the log level of Valgrind e.g. when a problem
