@@ -7,7 +7,7 @@
    This file is part of Valgrind, a dynamic binary instrumentation
    framework.
 
-   Copyright (C) 2000-2013 Julian Seward 
+   Copyright (C) 2000-2015 Julian Seward 
       jseward@acm.org
 
    This program is free software; you can redistribute it and/or
@@ -337,9 +337,6 @@ struct vki_stat {
 	long		st_blksize;
 	long		st_blocks;	/* Number 512-byte blocks allocated. */
 
-#undef st_atime
-#undef st_mtime
-#undef st_ctime
 	unsigned long	st_atime;
 	unsigned long 	st_atime_nsec; 
 	unsigned long	st_mtime;
@@ -692,6 +689,13 @@ struct vki_shminfo64 {
 
 #define	VKI_ENOSYS       38  /* Function not implemented */
 #define	VKI_EOVERFLOW    75  /* Value too large for defined data type */
+
+//----------------------------------------------------------------------
+// From linux-3.19.0/include/uapi/asm-generic/ioctls.h
+//----------------------------------------------------------------------
+
+#define VKI_TIOCGSERIAL     0x541E
+#define VKI_TIOCSSERIAL     0x541F
 
 //----------------------------------------------------------------------
 // And that's it!

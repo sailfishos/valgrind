@@ -125,7 +125,7 @@ position specifications, but consist of two lines. For calls, the format
 looks like
 </p>
 <pre class="screen">
- calls=(Call Count) (Destination position)
+ calls=(Call Count) (Target position)
  (Source position) (Inclusive cost of call)
 </pre>
 <p>The destination only specifies subpositions like line number. Therefore,
@@ -331,7 +331,7 @@ for "Ir and "Dr".</p>
 <pre class="screen">ProfileDataFile := FormatVersion? Creator? PartData*</pre>
 <p>
 </p>
-<pre class="screen">FormatVersion := "version:" Space* Number "\n"</pre>
+<pre class="screen">FormatVersion := "version: 1\n"</pre>
 <p>
 </p>
 <pre class="screen">Creator := "creator:" NoNewLineChar* "\n"</pre>
@@ -381,8 +381,10 @@ for "Ir and "Dr".</p>
 <pre class="screen">BodyLine := (empty line)
   | ('#' NoNewLineChar*)
   | CostLine
-  | PositionSpecification
-  | AssociationSpecification</pre>
+  | PositionSpec
+  | CallSpec
+  | UncondJumpSpec
+  | CondJumpSpec</pre>
 <p>
 </p>
 <pre class="screen">CostLine := SubPositionList Costs?</pre>
@@ -397,7 +399,7 @@ for "Ir and "Dr".</p>
 <pre class="screen">Costs := (Number Space+)+</pre>
 <p>
 </p>
-<pre class="screen">PositionSpecification := Position "=" Space* PositionName</pre>
+<pre class="screen">PositionSpec := Position "=" Space* PositionName</pre>
 <p>
 </p>
 <pre class="screen">Position := CostPosition | CalledPosition</pre>
@@ -412,17 +414,16 @@ for "Ir and "Dr".</p>
 <pre class="screen">PositionName := ( "(" Number ")" )? (Space* NoNewLineChar* )?</pre>
 <p>
 </p>
-<pre class="screen">AssociationSpecification := CallSpecification
-  | JumpSpecification</pre>
-<p>
-</p>
-<pre class="screen">CallSpecification := CallLine "\n" CostLine</pre>
+<pre class="screen">CallSpec := CallLine "\n" CostLine</pre>
 <p>
 </p>
 <pre class="screen">CallLine := "calls=" Space* Number Space+ SubPositionList</pre>
 <p>
 </p>
-<pre class="screen">JumpSpecification := ...</pre>
+<pre class="screen">UncondJumpSpec := "jump=" Space* Number Space+ SubPositionList</pre>
+<p>
+</p>
+<pre class="screen">CondJumpSpec := "jcnd=" Space* Number Space+ Number Space+ SubPositionList</pre>
 <p>
 </p>
 <pre class="screen">Space := " " | "\t"</pre>
@@ -449,12 +450,18 @@ for "Ir and "Dr".</p>
 <pre class="screen">NoNewLineChar := all characters without "\n"</pre>
 <p>
 </p>
+<p>A profile data file ("ProfileDataFile") starts with basic information
+  such as the version and creator information, and then has a list of parts, where
+  each part has its own header and body. Parts typically are different threads
+  and/or time spans/phases within a profiled application run.</p>
+<p>Note that callgrind_annotate currently only supports profile data files with
+  one part. Callgrind may produce multiple parts for one profile run, but defaults
+  to one output file for each part.</p>
 </div>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
 <a name="cl-format.reference.header"></a>3.2.2. Description of Header Lines</h3></div></div></div>
-<p>The header has an arbitrary number of lines of the format 
-"key: value". Possible <span class="emphasis"><em>key</em></span> values for the header are:</p>
+<p>Basic information in the first lines of a profile data file:</p>
 <div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem">
 <p><code class="computeroutput">version: number</code> [Callgrind]</p>
@@ -463,6 +470,15 @@ for "Ir and "Dr".</p>
     Cachegrind's format.  It is optional; if not appearing, version 1 
     is assumed.  Otherwise, this has to be the first header line.</p>
 </li>
+<li class="listitem">
+<p><code class="computeroutput">creator: string</code> [Callgrind]</p>
+<p>This is an arbitrary string to denote the creator of this file.
+      Optional.</p>
+</li>
+</ul></div>
+<p>The header for each part has an arbitrary number of lines of the format 
+"key: value". Possible <span class="emphasis"><em>key</em></span> values for the header are:</p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem">
 <p><code class="computeroutput">pid: process id</code> [Callgrind]</p>
 <p>Optional. This specifies the process ID of the supervised application 
@@ -505,26 +521,17 @@ for "Ir and "Dr".</p>
     responsible for the events raised. Note that the mapping of "instr"
     and "line" positions are given by the debugging line information
     produced by the compiler.</p>
-<p>This field is optional. If not specified, "line" is supposed 
-    only.</p>
+<p>This header line is optional, defaulting to "positions:
+    line" if not specified.</p>
 </li>
 <li class="listitem">
 <p><code class="computeroutput">events: event type abbreviations</code> [Cachegrind]</p>
-<p>A list of short names of the event types logged in this file. 
-    The order is the same as in cost lines.  The first event type is the
-    second or third number in a cost line, depending on the value of 
-    "positions".  Callgrind does not add additional cost types.  Specify
-    exactly once.</p>
-<p>Cost types from original Cachegrind are:
-      </p>
-<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: circle; ">
-<li class="listitem"><p><span class="command"><strong>Ir</strong></span>: Instruction read access</p></li>
-<li class="listitem"><p><span class="command"><strong>I1mr</strong></span>: Instruction Level 1 read cache miss</p></li>
-<li class="listitem"><p><span class="command"><strong>ILmr</strong></span>: Instruction last-level read cache miss</p></li>
-<li class="listitem"><p>...</p></li>
-</ul></div>
-<p>
-    </p>
+<p>A list of short names of the event types logged in cost
+      lines in this part of the profile data file. Arbitrary short
+      names are allowed.  The order given specifies the required order
+      in cost lines. Thus, the first event type is the second or third
+      number in a cost line, depending on the value of "positions".
+      Required to appear for each header part exactly once.</p>
 </li>
 <li class="listitem">
 <p><code class="computeroutput">summary: costs</code> [Callgrind]</p>
@@ -543,9 +550,18 @@ for "Ir and "Dr".</p>
 <div class="sect2">
 <div class="titlepage"><div><div><h3 class="title">
 <a name="cl-format.reference.body"></a>3.2.3. Description of Body Lines</h3></div></div></div>
-<p>There exist lines
-<code class="computeroutput">spec=position</code>.  The values for position
-specifications are arbitrary strings.  When starting with "(" and a
+<p>The regular body line is a cost line consisting of one or two
+position numbers (depending on "positions:" header line, see above)
+and an array of cost numbers. A position number either is a
+line numbers into a source file or an instruction address within binary
+code, with source/binary file names specified as position names (see
+below). The cost numbers get mapped to event types in the same order
+as specified in the "events:" header line. If less numbers than event
+types are given, the costs default to zero for the remaining event
+types.</p>
+<p>Further, there exist lines
+<code class="computeroutput">spec=position name</code>.  A position name
+is an arbitrary string. If it starts with "(" and a
 digit, it's a string in compressed format.  Otherwise it's the real
 position string.  This allows for file and symbol names as position
 strings, as these never start with "(" + <span class="emphasis"><em>digit</em></span>.
@@ -595,24 +611,25 @@ optional.</p>
 <p>The name of the target function of the next call cost 
     lines.</p>
 </li>
+</ul></div>
+<p>The last type of body line provides specific costs not just
+related to one position as regular cost lines. It starts with specific
+strings similar to position name specifications.</p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
 <li class="listitem">
-<p><code class="computeroutput">calls=</code> [Callgrind]</p>
-<p>The number of nonrecursive calls which are responsible for the 
-    cost specified by the next call cost line. This is the cost spent 
-    inside of the called function.</p>
-<p>After "calls=" there MUST be a cost line. This is the cost
-    spent in the called function. The first number is the source line 
-    from where the call happened.</p>
+<p><code class="computeroutput">calls=count target-position</code> [Callgrind]</p>
+<p>Call executed "count" times to "target-position".
+    After a "calls=" line there MUST be a cost line. This provides the source position
+    of the call and the cost spent in the called function in total.</p>
 </li>
 <li class="listitem">
-<p><code class="computeroutput">jump=count target position</code> [Callgrind]</p>
-<p>Unconditional jump, executed count times, to the given target
-    position.</p>
+<p><code class="computeroutput">jump=count target-position</code> [Callgrind]</p>
+<p>Unconditional jump, executed "count" times, to "target-position".</p>
 </li>
 <li class="listitem">
-<p><code class="computeroutput">jcnd=exe.count jumpcount target position</code> [Callgrind]</p>
-<p>Conditional jump, executed exe.count times with jumpcount 
-    jumps to the given target position.</p>
+<p><code class="computeroutput">jcnd=exe-count jump-count target-position</code> [Callgrind]</p>
+<p>Conditional jump, executed "exe-count" times with "jump-count" jumps
+    happening (rest is fall-through) to "target-position".</p>
 </li>
 </ul></div>
 </div>

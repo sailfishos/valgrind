@@ -452,6 +452,36 @@ behavior of the DRD tool itself:</p>
         allocates stack memory, but is not included in stack usage reported by
         DRD.
       </p></dd>
+<dt><span class="term">
+      <code class="option">--ignore-thread-creation=&lt;yes|no&gt; [default: no]</code>
+    </span></dt>
+<dd>
+<p>
+        Controls whether all activities during thread creation should be
+        ignored. By default enabled only on Solaris.
+        Solaris provides higher throughput, parallelism and scalability than
+        other operating systems, at the cost of more fine-grained locking
+        activity. This means for example that when a thread is created under
+        glibc, just one big lock is used for all thread setup. Solaris libc
+        uses several fine-grained locks and the creator thread resumes its
+        activities as soon as possible, leaving for example stack and TLS setup
+        sequence to the created thread.
+        This situation confuses DRD as it assumes there is some false ordering
+        in place between creator and created thread; and therefore many types
+        of race conditions in the application would not be reported. To prevent
+        such false ordering, this command line option is set to
+        <code class="computeroutput">yes</code> by default on Solaris.
+        All activity (loads, stores, client requests) is therefore ignored
+        during:</p>
+<div class="itemizedlist"><ul class="itemizedlist" style="list-style-type: disc; ">
+<li class="listitem"><p>
+	    pthread_create() call in the creator thread
+	  </p></li>
+<li class="listitem"><p>
+	    thread creation phase (stack and TLS setup) in the created thread
+	  </p></li>
+</ul></div>
+</dd>
 </dl>
 </div>
 <p>

@@ -1,7 +1,7 @@
 
 
 Valgrind FAQ
-Release 3.10.0 10 September 2014
+Release 3.11.0 22 September 2015
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Table of Contents

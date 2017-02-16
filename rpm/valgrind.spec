@@ -1,7 +1,7 @@
 #specfile originally created for Fedora, modified for Mer
 Summary: Tool for finding memory management bugs in programs
 Name: valgrind
-Version: 3.9.0
+Version: 3.11.0
 Release: 1
 Source0: http://www.valgrind.org/downloads/%{name}-%{version}.tar.bz2
 License: GPLv2
@@ -55,7 +55,7 @@ Requires: valgrind = %{version}-%{release}
 
 # not a good idea to build valgrind with fortify, as it does not link glibc
 RPM_OPT_FLAGS="`echo " %{optflags} " | sed 's/ -m\(64\|3[21]\) / /g;s/ -fexceptions / /g;s/^ //;s/ $//' | \
-    sed s/-Wp,-D_FORTIFY_SOURCE=2// | sed s/-D_FORTIFY_SOURCE=2//`"
+    sed s/-Wp,-D_FORTIFY_SOURCE=2// | sed s/-D_FORTIFY_SOURCE=2// | sed s/-fstack-protector//`"
 
 # valgrind's instruction compiler does not work on thumb hosts
 RPM_OPT_FLAGS="`echo " $RPM_OPT_FLAGS " | sed 's/ -mthumb / /g'`"
