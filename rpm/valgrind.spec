@@ -27,6 +27,14 @@ malloc/new/free/delete are intercepted. As a result, Valgrind can
 detect a lot of problems that are otherwise very hard to
 find/diagnose.
 
+%package extratools
+Summary: Additional tools for Valgrind (requires Perl)
+Requires: valgrind = %{version}-%{release}
+
+%description extratools
+Additional tools for Valgrind. Includes callgrind and ms_print.
+These depend on Perl support so might pull in lot of dependencies.
+
 %package devel
 Summary: Development files for valgrind
 Group: Development/Debuggers
@@ -94,10 +102,22 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root)
 %doc COPYING NEWS README_*
-%{_bindir}/*
+%{_bindir}/valgrind
+%{_bindir}/valgrind-di-server
+%{_bindir}/valgrind-listener
+%{_bindir}/vgdb
 %dir %{_libdir}/valgrind
 %{_libdir}/valgrind/*[^ao]
 %{_libdir}/valgrind/[^l]*o
+
+%files extratools
+%defattr(-,root,root)
+%{_bindir}/callgrind_annotate
+%{_bindir}/callgrind_control
+%{_bindir}/cg_annotate
+%{_bindir}/cg_diff
+%{_bindir}/cg_merge
+%{_bindir}/ms_print
 
 %files devel
 %defattr(-,root,root)
