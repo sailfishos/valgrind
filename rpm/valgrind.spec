@@ -101,7 +101,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-%doc COPYING NEWS README_*
+%doc COPYING
 %{_bindir}/valgrind
 %{_bindir}/valgrind-di-server
 %{_bindir}/valgrind-listener
@@ -129,4 +129,6 @@ rm -rf $RPM_BUILD_ROOT
 %files doc
 %defattr(-,root,root)
 %doc docs.installed/html docs.installed/*.pdf
+%doc NEWS README_*
 %{_mandir}/man1/*
+
