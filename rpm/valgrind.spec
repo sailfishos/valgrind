@@ -80,6 +80,7 @@ make %{_smp_mflags}
 rm -rf $RPM_BUILD_ROOT
 
 %makeinstall
+rm -rf docs.installed
 mkdir docs.installed
 mv $RPM_BUILD_ROOT%{_datadir}/doc/valgrind/* docs.installed/
 rm -f docs.installed/*.ps
