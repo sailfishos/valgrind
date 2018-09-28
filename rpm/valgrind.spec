@@ -1,7 +1,7 @@
 #specfile originally created for Fedora, modified for Mer
 Summary: Tool for finding memory management bugs in programs
 Name: valgrind
-Version: 3.11.0
+Version: 3.13.0
 Release: 1
 Source0: http://www.valgrind.org/downloads/%{name}-%{version}.tar.bz2
 License: GPLv2
@@ -44,14 +44,6 @@ Requires: valgrind = %{version}-%{release}
 Header files and libraries for development of valgrind aware programs
 or valgrind plugins.
 
-%package doc
-Summary: Documentation for valgrind
-Group: Development/Debuggers
-Requires: valgrind = %{version}-%{release}
-
-%description doc
-%{summary}.
-
 # valgrind enforces usage of -Wl,--build-id=none 
 # and debug packages requires build-id, so disable them
 %define debug_package %{nil}
@@ -80,10 +72,6 @@ make %{_smp_mflags}
 rm -rf $RPM_BUILD_ROOT
 
 %makeinstall
-rm -rf docs.installed
-mkdir docs.installed
-mv $RPM_BUILD_ROOT%{_datadir}/doc/valgrind/* docs.installed/
-rm -f docs.installed/*.ps
 
 %if "%{valsecarch}" != ""
 pushd $RPM_BUILD_ROOT%{_libdir}/valgrind/
@@ -126,10 +114,4 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libdir}/valgrind
 %{_libdir}/valgrind/*.a
 %{_libdir}/pkgconfig/*
-
-%files doc
-%defattr(-,root,root)
-%doc docs.installed/html docs.installed/*.pdf
-%doc NEWS README_*
-%{_mandir}/man1/*
 
