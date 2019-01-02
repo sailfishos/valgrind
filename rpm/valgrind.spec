@@ -9,6 +9,7 @@ URL: http://www.valgrind.org/
 Group: Development/Debuggers
 ExclusiveArch: %{ix86} %{arm}
 BuildRequires: pkgconfig
+Requires: glibc-debuginfo
 
 %ifarch %{ix86}
 %define valarch x86
