@@ -4,6 +4,7 @@ Name: valgrind
 Version: 3.15.0
 Release: 1
 Source0: http://www.valgrind.org/downloads/%{name}-%{version}.tar.bz2
+Patch0: 0001-VEX-priv-guest_arm_toIR.c-fix-0xEBAD-0x1CCA-sub.w-r1.patch
 License: GPLv2
 URL: http://www.valgrind.org/
 Group: Development/Debuggers
@@ -51,6 +52,9 @@ or valgrind plugins.
 
 %prep
 %setup -q -n %{name}-%{version}/%{name}
+
+# 0001-VEX-priv-guest_arm_toIR.c-fix-0xEBAD-0x1CCA-sub.w-r1.patch
+%patch0 -p1
 
 %build
 
