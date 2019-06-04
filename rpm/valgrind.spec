@@ -1,7 +1,7 @@
 #specfile originally created for Fedora, modified for Mer
 Summary: Tool for finding memory management bugs in programs
 Name: valgrind
-Version: 3.14.0
+Version: 3.15.0
 Release: 1
 Source0: http://www.valgrind.org/downloads/%{name}-%{version}.tar.bz2
 License: GPLv2
@@ -99,6 +99,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libdir}/valgrind
 %{_libdir}/valgrind/*[^ao]
 %{_libdir}/valgrind/[^l]*o
+%{_libexecdir}/valgrind/dh_view.*
 
 %files extratools
 %defattr(-,root,root)
