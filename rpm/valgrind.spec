@@ -1,9 +1,10 @@
 #specfile originally created for Fedora, modified for Mer
 Summary: Tool for finding memory management bugs in programs
 Name: valgrind
-Version: 3.14.0
+Version: 3.15.0
 Release: 1
 Source0: http://www.valgrind.org/downloads/%{name}-%{version}.tar.bz2
+Patch0: 0001-VEX-priv-guest_arm_toIR.c-fix-0xEBAD-0x1CCA-sub.w-r1.patch
 License: GPLv2
 URL: http://www.valgrind.org/
 Group: Development/Debuggers
@@ -52,6 +53,9 @@ or valgrind plugins.
 %prep
 %setup -q -n %{name}-%{version}/%{name}
 
+# 0001-VEX-priv-guest_arm_toIR.c-fix-0xEBAD-0x1CCA-sub.w-r1.patch
+%patch0 -p1
+
 %build
 
 # not a good idea to build valgrind with fortify, as it does not link glibc
@@ -99,6 +103,7 @@ rm -rf $RPM_BUILD_ROOT
 %dir %{_libdir}/valgrind
 %{_libdir}/valgrind/*[^ao]
 %{_libdir}/valgrind/[^l]*o
+%{_libexecdir}/valgrind/dh_view.*
 
 %files extratools
 %defattr(-,root,root)
