@@ -1,3 +1,4 @@
+
 #specfile originally created for Fedora, modified for Mer
 Summary: Tool for finding memory management bugs in programs
 Name: valgrind
@@ -61,7 +62,7 @@ or valgrind plugins.
 # not a good idea to build valgrind with fortify, as it does not link glibc
 RPM_OPT_FLAGS="`echo " %{optflags} " | sed 's/ -m\(64\|3[21]\) / /g;s/ -fexceptions / /g;s/^ //;s/ $//' | \
     sed s/-Wp,-D_FORTIFY_SOURCE=2// | sed s/-D_FORTIFY_SOURCE=2// | sed s/-fstack-protector// | \
-    sed s/-march=armv7-a+neon-vfpv4/-march=armv7-a/ | sed s/-mfpu=neon-vfpv4/-mfpu=vfpv3/ | \
+    sed s/-march=armv7-a+neon-vfpv4// | sed s/-mfpu=neon-vfpv4/-mfpu=vfpv3/ | \
     sed s/-mtune=cortex-a15// `"
 
 # valgrind's instruction compiler does not work on thumb hosts
