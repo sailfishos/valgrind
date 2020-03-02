@@ -62,8 +62,8 @@ or valgrind plugins.
 # not a good idea to build valgrind with fortify, as it does not link glibc
 RPM_OPT_FLAGS="`echo " %{optflags} " | sed 's/ -m\(64\|3[21]\) / /g;s/ -fexceptions / /g;s/^ //;s/ $//' | \
     sed s/-Wp,-D_FORTIFY_SOURCE=2// | sed s/-D_FORTIFY_SOURCE=2// | sed s/-fstack-protector// | \
-    sed s/-march=armv7-a+neon-vfpv4// | sed s/-mfpu=neon-vfpv4/-mfpu=vfpv3/ | \
-    sed s/-mtune=cortex-a15/-fstack-check/ `"
+    sed s/-march=armv7-a+neon-vfpv4// | sed s/-mfpu=neon-vfpv4/-mfpu=neon/ | \
+    sed s/-mtune=cortex-a15// | sed s/-mabi=aapcs-linux//`"
 
 # valgrind's instruction compiler does not work on thumb hosts
 RPM_OPT_FLAGS="`echo " $RPM_OPT_FLAGS " | sed 's/ -mthumb / /g'`"
