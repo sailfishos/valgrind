@@ -1,23 +1,31 @@
+%define keepstatic 1
+
 #specfile originally created for Fedora, modified for Mer
 Summary: Tool for finding memory management bugs in programs
 Name: valgrind
-Version: 3.15.0
+Version: 3.18.1
 Release: 1
-Source0: http://www.valgrind.org/downloads/%{name}-%{version}.tar.bz2
+Source0: %{name}-%{version}.tar.bz2
 Patch0: 0001-VEX-priv-guest_arm_toIR.c-fix-0xEBAD-0x1CCA-sub.w-r1.patch
 License: GPLv2
 URL: http://www.valgrind.org/
-Group: Development/Debuggers
-BuildRequires: pkgconfig
 Requires: glibc-debuginfo
 
 %ifarch %{ix86}
 %define valarch x86
-%define valsecarch %{nil}
+%define only_arch --enable-only32bit
+%endif
+%ifarch x86_64
+%define valarch amd64
+%define only_arch --enable-only64bit
 %endif
 %ifarch %{arm}
 %define valarch arm
-%define valsecarch %{nil}
+%define only_arch --enable-only32bit
+%endif
+%ifarch %arm64
+%define valarch arm64
+%define only_arch --enable-only64bit
 %endif
 
 %description
@@ -38,22 +46,18 @@ These depend on Perl support so might pull in lot of dependencies.
 
 %package devel
 Summary: Development files for valgrind
-Group: Development/Debuggers
 Requires: valgrind = %{version}-%{release}
 
 %description devel
 Header files and libraries for development of valgrind aware programs
 or valgrind plugins.
 
-# valgrind enforces usage of -Wl,--build-id=none 
+# valgrind enforces usage of -Wl,--build-id=none
 # and debug packages requires build-id, so disable them
 %define debug_package %{nil}
 
 %prep
-%setup -q -n %{name}-%{version}/%{name}
-
-# 0001-VEX-priv-guest_arm_toIR.c-fix-0xEBAD-0x1CCA-sub.w-r1.patch
-%patch0 -p1
+%autosetup -p1 -n %{name}-%{version}/%{name}
 
 %build
 
@@ -69,40 +73,23 @@ export CXXFLAGS="$RPM_OPT_FLAGS"
 autoreconf -fi
 export GDB=/usr/bin/gdb
 
-%configure CFLAGS="$RPM_OPT_FLAGS" CXXFLAGS="$RPM_OPT_FLAGS"
-make %{_smp_mflags}
+%configure CFLAGS="$RPM_OPT_FLAGS" CXXFLAGS="$RPM_OPT_FLAGS" \
+  %{only_arch}
+
+%make_build
 
 %install
-rm -rf $RPM_BUILD_ROOT
-
-%makeinstall
-
-%if "%{valsecarch}" != ""
-pushd $RPM_BUILD_ROOT%{_libdir}/valgrind/
-rm -f *-%{valsecarch}-* || :
-for i in *-%{valarch}-*; do
-  j=`echo $i | sed 's/-%{valarch}-/-%{valsecarch}-/'`
-  ln -sf ../../lib/valgrind/$j $j
-done
-popd
-%endif
-
-rm -f $RPM_BUILD_ROOT%{_libdir}/valgrind/*.supp.in
-
-%clean
-rm -rf $RPM_BUILD_ROOT
+%make_install
 
 %files
 %defattr(-,root,root)
-%doc COPYING
+%license COPYING
 %{_bindir}/valgrind
 %{_bindir}/valgrind-di-server
 %{_bindir}/valgrind-listener
 %{_bindir}/vgdb
-%dir %{_libdir}/valgrind
-%{_libdir}/valgrind/*[^ao]
-%{_libdir}/valgrind/[^l]*o
-%{_libexecdir}/valgrind/dh_view.*
+%dir %{_libexecdir}/valgrind
+%{_libexecdir}/valgrind/*
 
 %files extratools
 %defattr(-,root,root)

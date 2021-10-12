@@ -17,7 +17,7 @@ diff --git a/VEX/priv/guest_arm_toIR.c b/VEX/priv/guest_arm_toIR.c
 index b26393a..fe83277 100644
 --- a/VEX/priv/guest_arm_toIR.c
 +++ b/VEX/priv/guest_arm_toIR.c
-@@ -21153,10 +21153,10 @@ DisResult disInstr_THUMB_WRK (
+@@ -21114,10 +21114,10 @@ DisResult disInstr_THUMB_WRK (
            && rD != 15 && rN == 13 && imm5 <= 31 && how == 0) {
           valid = True;
        }
