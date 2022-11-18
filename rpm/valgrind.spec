@@ -10,6 +10,7 @@ Patch0: 0001-VEX-priv-guest_arm_toIR.c-fix-0xEBAD-0x1CCA-sub.w-r1.patch
 License: GPLv2
 URL: http://www.valgrind.org/
 Requires: glibc-debuginfo
+BuildRequires: automake
 
 %ifarch %{ix86}
 %define valarch x86
