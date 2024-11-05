@@ -1,4 +1,4 @@
-From 1dbb2bc02eb157c4d561bb36236bfc7006d59f0b Mon Sep 17 00:00:00 2001
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
 From: Philippe De Muyter <phdm@macqel.be>
 Date: Sat, 30 Sep 2017 10:23:35 +0200
 Subject: [PATCH] VEX/priv/guest_arm_toIR.c: fix 0xEBAD 0x1CCA (sub.w r12, sp,
@@ -14,10 +14,10 @@ disInstr(thumb): unhandled instruction: 0xEBAD 0x1CCA
  1 file changed, 2 insertions(+), 2 deletions(-)
 
 diff --git a/VEX/priv/guest_arm_toIR.c b/VEX/priv/guest_arm_toIR.c
-index b26393a..fe83277 100644
+index 2bedccd14..94b09000d 100644
 --- a/VEX/priv/guest_arm_toIR.c
 +++ b/VEX/priv/guest_arm_toIR.c
-@@ -21114,10 +21114,10 @@ DisResult disInstr_THUMB_WRK (
+@@ -21115,10 +21115,10 @@ DisResult disInstr_THUMB_WRK (
            && rD != 15 && rN == 13 && imm5 <= 31 && how == 0) {
           valid = True;
        }
@@ -30,6 +30,3 @@ index b26393a..fe83277 100644
           valid = True;
        }
        if (valid) {
--- 
-1.8.4.5
-
