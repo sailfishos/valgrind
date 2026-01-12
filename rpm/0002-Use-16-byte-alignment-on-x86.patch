@@ -1,0 +1,79 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Matti Viljanen <matti.viljanen@jolla.com>
+Date: Thu, 15 Jan 2026 20:34:34 +0200
+Subject: [PATCH] Use 16-byte alignment on x86
+
+4-byte alignment can't be used, since it breaks some SSE instructions
+and some functions with variable amount of variables.
+---
+ Makefile.all.am |  6 +++---
+ configure.ac    | 25 -------------------------
+ 2 files changed, 3 insertions(+), 28 deletions(-)
+
+diff --git a/Makefile.all.am b/Makefile.all.am
+index d4f6b3fb7..ddc5189f7 100644
+--- a/Makefile.all.am
++++ b/Makefile.all.am
+@@ -201,7 +201,7 @@ endif
+ endif
+ 
+ AM_FLAG_M3264_X86_LINUX   = @FLAG_M32@
+-AM_CFLAGS_X86_LINUX       = @FLAG_M32@ @PREFERRED_STACK_BOUNDARY_2@ \
++AM_CFLAGS_X86_LINUX       = @FLAG_M32@ \
+ 				$(AM_CFLAGS_BASE) -fomit-frame-pointer
+ AM_CFLAGS_PSO_X86_LINUX   = @FLAG_M32@ $(AM_CFLAGS_BASE) $(AM_CFLAGS_PSO_BASE)
+ AM_CCASFLAGS_X86_LINUX    = @FLAG_M32@ -g
+@@ -228,7 +228,7 @@ AM_CFLAGS_PSO_PPC64LE_LINUX = @FLAG_M64@ $(AM_CFLAGS_BASE) $(AM_CFLAGS_PSO_BASE)
+ AM_CCASFLAGS_PPC64LE_LINUX  = @FLAG_M64@ -g
+ 
+ AM_FLAG_M3264_X86_FREEBSD   = @FLAG_M32@
+-AM_CFLAGS_X86_FREEBSD       = @FLAG_M32@ @PREFERRED_STACK_BOUNDARY_2@ \
++AM_CFLAGS_X86_FREEBSD       = @FLAG_M32@ \
+ 			      $(AM_CFLAGS_BASE) -fomit-frame-pointer
+ AM_CFLAGS_PSO_X86_FREEBSD       = @FLAG_M32@ $(AM_CFLAGS_BASE) $(AM_CFLAGS_PSO_BASE)
+ AM_CCASFLAGS_X86_FREEBSD    = @FLAG_M32@ -g
+@@ -298,7 +298,7 @@ AM_CFLAGS_PSO_RISCV64_LINUX = @FLAG_M64@ $(AM_CFLAGS_BASE) $(AM_CFLAGS_PSO_BASE)
+ AM_CCASFLAGS_RISCV64_LINUX  = @FLAG_M64@ -g
+ 
+ AM_FLAG_M3264_X86_SOLARIS   = @FLAG_M32@
+-AM_CFLAGS_X86_SOLARIS       = @FLAG_M32@ @PREFERRED_STACK_BOUNDARY_2@ \
++AM_CFLAGS_X86_SOLARIS       = @FLAG_M32@ \
+ 				$(AM_CFLAGS_BASE) -fomit-frame-pointer @SOLARIS_UNDEF_LARGESOURCE@
+ AM_CFLAGS_PSO_X86_SOLARIS   = @FLAG_M32@ $(AM_CFLAGS_BASE) $(AM_CFLAGS_PSO_BASE)
+ AM_CCASFLAGS_X86_SOLARIS    = @FLAG_M32@ -g -D_ASM
+diff --git a/configure.ac b/configure.ac
+index e30e4c1a1..9cbf0118e 100644
+--- a/configure.ac
++++ b/configure.ac
+@@ -2437,31 +2437,6 @@ CFLAGS=$safe_CFLAGS
+ AC_SUBST(FLAG_MSSE)
+ 
+ 
+-# does this compiler support -mpreferred-stack-boundary=2 when
+-# generating code for a 32-bit target?  Note that we only care about
+-# this when generating code for (32-bit) x86, so if the compiler
+-# doesn't recognise -m32 it's no big deal.  We'll just get code for
+-# the Memcheck and other helper functions, that is a bit slower than
+-# it could be, on x86; and no difference at all on any other platform.
+-AC_MSG_CHECKING([if gcc accepts -mpreferred-stack-boundary=2 -m32])
+-
+-safe_CFLAGS=$CFLAGS
+-CFLAGS="-mpreferred-stack-boundary=2 -m32 -Werror"
+-
+-AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[]], [[
+-  return 0;
+-]])], [
+-PREFERRED_STACK_BOUNDARY_2="-mpreferred-stack-boundary=2"
+-AC_MSG_RESULT([yes])
+-], [
+-PREFERRED_STACK_BOUNDARY_2=""
+-AC_MSG_RESULT([no])
+-])
+-CFLAGS=$safe_CFLAGS
+-
+-AC_SUBST(PREFERRED_STACK_BOUNDARY_2)
+-
+-
+ # does this compiler support -mlong-double-128 ?
+ AC_MSG_CHECKING([if gcc accepts -mlong-double-128])
+ safe_CFLAGS=$CFLAGS

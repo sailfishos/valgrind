@@ -7,6 +7,7 @@ Version: 3.26.0
 Release: 1
 Source0: %{name}-%{version}.tar.bz2
 Patch0: 0001-VEX-priv-guest_arm_toIR.c-fix-0xEBAD-0x1CCA-sub.w-r1.patch
+Patch1: 0002-Use-16-byte-alignment-on-x86.patch
 License: GPLv2
 URL: http://www.valgrind.org/
 Requires: glibc-debuginfo
