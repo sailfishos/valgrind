@@ -3,7 +3,7 @@
 #specfile originally created for Fedora, modified for Mer
 Summary: Tool for finding memory management bugs in programs
 Name: valgrind
-Version: 3.24.0
+Version: 3.26.0
 Release: 1
 Source0: %{name}-%{version}.tar.bz2
 Patch0: 0001-VEX-priv-guest_arm_toIR.c-fix-0xEBAD-0x1CCA-sub.w-r1.patch
@@ -88,6 +88,7 @@ export GDB=/usr/bin/gdb
 %{_bindir}/valgrind-di-server
 %{_bindir}/valgrind-listener
 %{_bindir}/vgdb
+%{_bindir}/vgstack
 %dir %{_libexecdir}/valgrind
 %{_libexecdir}/valgrind/*
 
